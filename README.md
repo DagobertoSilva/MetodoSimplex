@@ -589,7 +589,7 @@ O projeto utilizará Versionamento Semântico no formato `MAJOR.MINOR.PATCH` (Ex
 Este projeto busca desenvolver conhecimentos em três níveis:
 * **🧮 Nível Matemático:** Programação Linear, matrizes, sistemas lineares, álgebra linear, otimização, Método Simplex.
 * **💻 Nível de Programação:** linguagem C, ponteiros, structs, matrizes, memória dinâmica, modularização, algoritmos, tratamento de números reais.
-* **🏗️ Nível de Engenharia de Software:** arquitetura, organização de código, testes, Git, GitHub, documentação, versionamento, Issues, Pull Requests, Releases.
+* **🏗️ Nível de Engenharia de Software:** arquitetura, organização de código, testes, Git, GitHub, documentação, versionamento, Issues, Pull Requests, Releases. 
 
 ## 🔐 Boas Práticas
 
