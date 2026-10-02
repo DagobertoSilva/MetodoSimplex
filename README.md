@@ -186,5 +186,3 @@ Passe o caminho do ficheiro de entrada como argumento no terminal:
 ### Integrantes do Grupo (até 3 membros)
 
 - Dagoberto Silva — Graduando em Ciência da Computação
-- [Nome do Integrante 2] — Curso
-- [Nome do Integrante 3] — Curso
