@@ -1,664 +1,190 @@
-# 📐 Implementação do Método Simplex em C
+# 📐 Implementação Computacional do Método Simplex (Duas Fases)
 
-Implementação do Método Simplex para Programação Linear, desenvolvida em C, com foco em aprendizado de Pesquisa Operacional, algoritmos, estruturas de dados, álgebra linear, manipulação de matrizes e engenharia de software.
+Implementação do Método Simplex em Duas Fases para a resolução de problemas de Programação Linear (PL), desenvolvida na linguagem C para a disciplina de Pesquisa Operacional da Universidade Federal do Ceará (UFC - Campus Crateús).
 
-O projeto tem como objetivo transformar a formulação matemática de um problema de Programação Linear em uma implementação computacional capaz de executar as etapas do algoritmo Simplex, apresentando as iterações e a solução encontrada.
-
-🎓 Projeto acadêmico e de portfólio desenvolvido para aprofundar conhecimentos em Programação Linear, Método Simplex, C e desenvolvimento de algoritmos.
-
----
+O projeto consiste na criação de um programa via terminal capaz de ler o modelo matemático a partir de um ficheiro de texto, realizar a conversão das restrições ($\le$, $=$, $\ge$), executar as Fases I e II do Simplex e apresentar os tableaux e o resultado final de forma detalhada.
 
 ## 📌 Sumário
 
 - [Sobre o Projeto](#-sobre-o-projeto)
 - [Objetivos](#-objetivos)
-- [O que é o Método Simplex](#-o-que-é-o-método-simplex)
-- [Exemplo do Problema](#-exemplo-do-problema)
-- [Funcionamento do Algoritmo](#-funcionamento-do-algoritmo)
-- [Escopo do Projeto](#-escopo-do-projeto)
-- [Funcionalidades](#️-funcionalidades)
-- [Arquitetura](#️-arquitetura)
-- [Estrutura de Diretórios](#-estrutura-de-diretórios)
-- [Tecnologias](#️-tecnologias)
-- [Conceitos Estudados](#-conceitos-estudados)
-- [Requisitos Funcionais](#-requisitos-funcionais)
-- [Requisitos Não Funcionais](#️-requisitos-não-funcionais)
-- [Precisão Numérica](#-precisão-numérica)
-- [Casos Especiais](#️-casos-especiais)
-- [Testes](#-testes)
-- [Estratégia de Desenvolvimento](#-estratégia-de-desenvolvimento)
-- [Git e GitHub](#-git-e-github)
-- [Padrão de Commits](#-padrão-de-commits)
-- [Roadmap](#-roadmap)
-- [Documentação](#-documentação)
-- [Possíveis Evoluções](#-possíveis-evoluções)
-- [Como Executar](#️-como-executar)
-- [Exemplo de Execução](#-exemplo-de-execução)
-- [Aprendizados](#-aprendizados)
-- [Checklist](#-checklist-do-projeto)
-- [Licença](#-licença)
-- [Autor](#-autor)
-
----
+- [Escopo do Trabalho](#-escopo-do-trabalho)
+- [Requisitos da Implementação](#️-requisitos-da-implementação)
+- [Formato do Ficheiro de Entrada](#-formato-do-ficheiro-de-entrada)
+- [Saída e Exibição dos Tableaux](#-saída-e-exibição-dos-tableaux)
+- [Estratégia de Testes e Validação](#-estratégia-de-testes-e-validação)
+- [Relatório Técnico e Regras de IA](#-relatório-técnico-e-regras-de-ia)
+- [Estrutura do Projeto](#️-estrutura-do-projeto)
+- [Como Compilar e Executar](#️-como-compilar-e-executar)
+- [Equipa e Avaliação](#-equipa-e-avaliação)
 
 ## 📖 Sobre o Projeto
 
-Este projeto implementa o Método Simplex, um dos principais algoritmos utilizados para resolver problemas de Programação Linear (PL).
+Este projeto aborda a resolução computacional de problemas de Programação Linear na forma geral:
 
-A proposta não é apenas criar um programa que encontre uma resposta, mas desenvolver uma implementação que permita compreender:
+$$\text{Maximizar } Z = c_1 x_1 + c_2 x_2 + \dots + c_n x_n$$
 
-* Como um problema matemático é representado computacionalmente;
-* Como uma matriz pode representar um problema de Programação Linear;
-* Como funciona um tableau Simplex;
-* Como uma variável entra na base;
-* Como uma variável sai da base;
-* Como funciona o teste da razão;
-* Como ocorre o pivoteamento;
-* Como as iterações são realizadas;
-* Como identificar uma solução ótima;
-* Como identificar situações como solução ilimitada ou problema inviável;
-* Como transformar conceitos matemáticos em estruturas e algoritmos em C.
+Sujeito a restrições dos tipos:
 
-O projeto será desenvolvido de forma incremental, permitindo que cada etapa seja testada e documentada antes da implementação de novos recursos.
+- $a_{i1}x_1 + a_{i2}x_2 + \dots + a_{in}x_n \le b_i$
+- $a_{i1}x_1 + a_{i2}x_2 + \dots + a_{in}x_n = b_i$
+- $a_{i1}x_1 + a_{i2}x_2 + \dots + a_{in}x_n \ge b_i$
+- $x_j \ge 0 \quad (\forall j = 1, \dots, n)$
+
+Para tratar restrições dos tipos $\ge$ e $=$, o software utiliza a Fase I do Método Simplex com a adição de variáveis artificiais para encontrar uma Solução Básica Viável (SBV) inicial. Encontrada a SBV, o algoritmo elimina as variáveis artificiais e avança para a Fase II, buscando a solução ótima do problema original.
 
 ## 🎯 Objetivos
 
 ### Objetivo Geral
-Desenvolver, em C, uma implementação do Método Simplex para problemas de Programação Linear, utilizando estruturas de dados e operações matriciais para representar e resolver os problemas.
+
+Implementar computacionalmente as Fases I e II do Método Simplex para resolver problemas de Programação Linear com restrições mistas via ficheiro de entrada no terminal.
 
 ### Objetivos Específicos
-* Compreender os fundamentos da Programação Linear.
-* Compreender matematicamente o Método Simplex.
-* Implementar o tableau Simplex.
-* Trabalhar com matrizes dinamicamente.
-* Implementar operações de pivoteamento.
-* Implementar o teste da razão.
-* Identificar a variável que entra na base.
-* Identificar a variável que sai da base.
-* Implementar o critério de optimalidade.
-* Identificar soluções ilimitadas.
-* Trabalhar com números reais utilizando `double`.
-* Implementar testes automatizados.
-* Organizar o projeto seguindo boas práticas de engenharia de software.
-* Utilizar Git e GitHub durante todo o desenvolvimento.
-* Documentar decisões matemáticas e técnicas.
-* Evoluir posteriormente para casos mais complexos.
 
-## 🧮 O que é o Método Simplex
+- Representar computacionalmente modelos de Programação Linear e as suas matrizes associadas.
+- Tratar e introduzir automaticamente variáveis de folga, excesso e artificiais.
+- Implementar as operações matriciais de pivoteamento e o teste da razão estritamente em C.
+- Identificar com precisão o status da solução: Solução Ótima, Problema Inviável ou Solução Ilimitada.
+- Exibir a evolução passo a passo do algoritmo por meio da impressão formatada do tableau.
 
-O Método Simplex é um algoritmo utilizado para resolver problemas de Programação Linear.
-Um problema de Programação Linear normalmente possui:
+## 📦 Escopo do Trabalho
 
-**Variáveis de decisão**
-São as incógnitas que queremos determinar.
-Exemplo:
-* $x_1$
-* $x_2$
+- **Interface:** execução exclusiva via linha de comandos/terminal, sem interface gráfica.
+- **Entrada/Saída:** leitura de ficheiros de texto (`.txt`) e geração de resultados diretamente no terminal.
+- **Formato de Entrega:** ficheiro compactado (`.zip`) enviado via SIGAA contendo o código-fonte, relatório técnico em PDF, instruções de compilação/execução, ficheiros de teste e scripts.
 
-**Função objetivo**
-Representa aquilo que queremos maximizar ou minimizar.
-Exemplo:
-$$Max Z = 3x_1 + 5x_2$$
+## ⚙️ Requisitos da Implementação
 
-**Restrições**
-Representam as limitações do problema.
-Exemplo:
-$$x_1 + 2x_2 \leq 8$$
-$$3x_1 + 2x_2 \leq 12$$
+A implementação atende aos seguintes requisitos funcionais e estruturais:
 
-**Restrições de não negatividade**
-$$x_1 \geq 0$$
-$$x_2 \geq 0$$
+- [x] Leitura e parsing do ficheiro de entrada no formato especificado.
+- [x] Introdução automática de variáveis de folga ($\le$), excesso ($\ge$) e artificiais ($=$, $\ge$).
+- [x] Execução e controlo da Fase I do Simplex.
+- [x] Deteção de inviabilidade (variável artificial a permanecer na base com valor positivo no fim da Fase I).
+- [x] Remoção de variáveis artificiais e transição para a Fase II.
+- [x] Execução da Fase II a partir da base viável.
+- [x] Identificação de solução ótima ou solução ilimitada.
+- [x] Apresentação do tableau a cada iteração de ambas as fases.
+- [x] Exibição clara da transição de fase e do resumo final da solução.
 
-O Simplex percorre soluções básicas factíveis, realizando operações matemáticas até encontrar uma solução ótima, quando ela existe dentro das condições consideradas.
+## 📄 Formato do Ficheiro de Entrada
 
-## 📊 Exemplo do Problema
+O programa processa ficheiros de entrada estruturados no padrão exigido:
 
-Para a primeira versão do projeto será utilizado um problema simples de maximização:
+1. **Linha 1:** inteiro $N$ (número de variáveis de decisão).
+2. **Linha 2:** $N$ números reais (coeficientes da função objetivo).
+3. **Linha 3:** inteiro $B$ (quantidade de restrições do tipo $\le$).
+4. **Próximas $B$ linhas:** coeficientes das variáveis e o termo independente ($RHS$) de cada restrição $\le$.
+5. **Linha seguinte:** inteiro $C$ (quantidade de restrições do tipo $=$).
+6. **Próximas $C$ linhas:** coeficientes das variáveis e o termo independente ($RHS$) de cada restrição $=$.
+7. **Linha seguinte:** inteiro $D$ (quantidade de restrições do tipo $\ge$).
+8. **Próximas $D$ linhas:** coeficientes das variáveis e o termo independente ($RHS$) de cada restrição $\ge$.
 
-**Maximizar:**
-$$Z = 3x_1 + 5x_2$$
-
-**Sujeito a:**
-$$x_1 + 2x_2 \leq 8$$
-$$3x_1 + 2x_2 \leq 12$$
-$$x_1 \geq 0, x_2 \geq 0$$
-
-### ➕ Adicionando variáveis de folga
-Para transformar as restrições em igualdades:
-
-$$x_1 + 2x_2 + s_1 = 8$$
-$$3x_1 + 2x_2 + s_2 = 12$$
-
-Onde $s_1 \geq 0$ e $s_2 \geq 0$ são as variáveis de folga.
-
-### 📋 Tableau Inicial
-Uma representação possível do tableau é:
+### Exemplo de Entrada (`entrada.txt`)
 
 ```text
-       x₁   x₂   s₁   s₂   RHS
-s₁      1    2    1    0    8
-s₂      3    2    0    1   12
-Z      -3   -5    0    0    0
+2
+4 3
+1
+1 3 20
+1
+1 -1 0
+1
+2 -1 1
 ```
 
-Nesse projeto, essa convenção será utilizada inicialmente para problemas de maximização. A escolha de sinais e a forma de representação do tableau são uma convenção de implementação. O projeto deverá documentar essa convenção para que todas as funções trabalhem de maneira consistente.
+Representa o problema: Maximizar $Z = 4x_1 + 3x_2$, sujeito a $x_1 + 3x_2 \le 20$, $x_1 - x_2 = 0$, $2x_1 - x_2 \ge 1$ e $x_1, x_2 \ge 0$.
 
-## 🔄 Funcionamento do Algoritmo
+## 📊 Saída e Exibição dos Tableaux
 
-De maneira simplificada:
+A saída gerada no terminal detalha o progresso da resolução:
 
-```text
-Problema de Programação Linear
-            ↓
-      Modelo matemático
-            ↓
-   Transformação para tableau
-            ↓
-   Escolha da variável de entrada
-            ↓
-      Teste da razão
-            ↓
-   Escolha da variável de saída
-            ↓
-        Pivoteamento
-            ↓
-       Novo tableau
-            ↓
-    Critério de optimalidade
-        ↙           ↘
-     Não ótimo       Ótimo
-       ↓              ↓
-   Nova iteração     Solução
-```
+- **Tableaux das Iterações:** impressão organizada a cada passo, identificando a linha/coluna pivô e a fase atual (FASE I ou FASE II).
+- **Indicação de Transição:** destaque visual a informar o término da Fase I e o início da Fase II.
+- **Resumo da Solução:**
+  - **Status:** Solução Ótima Encontrada / Problema Inviável / Solução Ilimitada.
+  - **Valor Ótimo ($Z$):** valor final da função objetivo.
+  - **Valores das Variáveis de Decisão:** valores assumidos por $x_1, x_2, \dots, x_n$.
+  - **Número Total de Iterações:** soma das iterações da Fase I e Fase II.
 
-### 🔎 Etapas Principais
+## 🧪 Estratégia de Testes e Validação
 
-1. **Criar o problema**: O programa recebe quantidade de variáveis, quantidade de restrições, coeficientes, termos independentes e coeficientes da função objetivo.
-2. **Criar o tableau**: O modelo matemático é convertido para uma matriz utilizada pelo algoritmo.
-3. **Escolher a variável que entra**: Na convenção utilizada inicialmente, para maximização, procura-se um coeficiente negativo na linha da função objetivo. A variável associada ao coeficiente escolhido entra na base.
-4. **Teste da razão**: Para determinar qual variável deverá sair da base: $razão = \frac{RHS}{\text{elemento da coluna pivô}}$. São consideradas apenas as linhas cujo elemento da coluna pivô seja positivo. A menor razão positiva determina a linha pivô.
-5. **Pivoteamento**: Após determinar linha pivô e coluna pivô o tableau é transformado por operações elementares. O elemento localizado na interseção é o elemento pivô.
-6. **Nova iteração**: Após o pivoteamento, o algoritmo verifica novamente a linha da função objetivo. Se ainda houver possibilidade de melhoria, uma nova iteração é executada.
-7. **Critério de parada**: Na convenção inicial, quando não existem mais coeficientes negativos relevantes na linha da função objetivo, o algoritmo considera que encontrou uma solução ótima.
+O software é validado com um conjunto de pelo menos 5 problemas de Programação Linear, cobrindo os seguintes cenários:
 
-## 📦 Escopo do Projeto
+1. Problemas resolvidos diretamente na Fase II (apenas restrições $\le$).
+2. Problemas que exigem a Fase I (presença de restrições $\ge$ e $=$).
+3. Deteção de Inviabilidade (Fase I encerra com custo $Z > 0$).
+4. Deteção de Solução Ilimitada (todas as entradas da coluna pivô são $\le 0$ no teste da razão).
+5. Problemas com múltiplas variáveis de decisão e coeficientes fracionários/decimais.
 
-O projeto será desenvolvido em versões incrementais.
+## 📑 Relatório Técnico e Regras de IA
 
-**Versão inicial — v0.1.0**
-A primeira versão terá como objetivo implementar:
-* Maximização;
-* Restrições $\leq$;
-* Variáveis não negativas;
-* Coeficientes reais;
-* Tableau inicial;
-* Escolha da coluna pivô;
-* Teste da razão;
-* Escolha da linha pivô;
-* Operação de pivoteamento;
-* Critério de optimalidade;
-* Obtenção da solução.
+A entrega acompanha um relatório académico formatado segundo as normas, contendo:
 
-**Fora do escopo inicial**
-Minimização direta, restrições $\geq$, restrições $=$, Big M, Método das Duas Fases, entrada complexa, interface gráfica. Esses recursos serão adicionados posteriormente.
+- Capa e Sumário
+- Introdução e Fundamentação Teórica
+- Método Experimental
+- Resultados e Discussão (comparações e tabelas)
+- Conclusão e Referências
+- **Secção "Uso de ferramentas de IA":** conforme a Portaria N.º 39/PRPPG/UFC de 01/10/2025, o relatório declara o uso transparente de IA generativa (ferramentas, finalidades e prompts). É vedado o uso de IA para a geração de análises críticas, redação de secções substantivas, manipulação de dados ou plágio.
 
-## ⚙️ Funcionalidades
-
-### Implementadas
-- [x] Representação de um problema de Programação Linear
-- [x] Criação do tableau
-- [x] Exibição do tableau
-- [x] Seleção da coluna pivô
-- [x] Teste da razão
-- [x] Seleção da linha pivô
-- [x] Pivoteamento
-- [x] Critério de optimalidade
-- [x] Extração da solução
-- [x] Exibição das iterações
-
-### Planejadas
-- [ ] Entrada dinâmica pelo terminal
-- [ ] Leitura de problemas através de arquivos
-- [ ] Detecção de solução ilimitada
-- [ ] Detecção de problema inviável
-- [ ] Detecção de múltiplas soluções ótimas
-- [ ] Tratamento de degeneração
-- [ ] Problemas de minimização
-- [ ] Restrições $\geq$
-- [ ] Restrições $=$
-- [ ] Variáveis artificiais
-- [ ] Método Big M
-- [ ] Método das Duas Fases
-- [ ] Testes automatizados
-- [ ] Relatório detalhado das iterações
-
-## 🏗️ Arquitetura
-
-A implementação será organizada por responsabilidades.
-
-```text
-                 ┌──────────────┐
-                 │    main.c    │
-                 └──────┬───────┘
-                        │
-              ┌─────────▼─────────┐
-              │      input        │
-              └─────────┬─────────┘
-                        │
-              ┌─────────▼─────────┐
-              │       model       │
-              └─────────┬─────────┘
-                        │
-              ┌─────────▼─────────┐
-              │      tableau      │
-              └─────────┬─────────┘
-                        │
-              ┌─────────▼─────────┐
-              │      simplex      │
-              └─────────┬─────────┘
-                        │
-              ┌─────────▼─────────┐
-              │      output       │
-              └───────────────────┘
-```
-
-* **main.c**: Responsável por coordenar a execução.
-* **input**: Responsável pela entrada dos dados.
-* **model**: Representa matematicamente o problema.
-* **tableau**: Responsável pela estrutura e operações da matriz Simplex.
-* **simplex**: Contém a lógica principal do algoritmo.
-* **output**: Responsável pela apresentação dos resultados e das iterações.
-
-## 📁 Estrutura de Diretórios
-
-Estrutura planejada:
+## 🏗️ Estrutura do Projeto
 
 ```text
 simplex-c/
-│
-├── src/
-│   ├── main.c
-│   ├── simplex.c
-│   ├── tableau.c
-│   ├── model.c
-│   ├── input.c
-│   └── output.c
-│
-├── include/
-│   ├── simplex.h
-│   ├── tableau.h
-│   ├── model.h
-│   ├── input.h
-│   └── output.h
-│
-├── tests/
-│   ├── test_simplex.c
-│   ├── test_tableau.c
-│   └── test_model.c
-│
-├── data/
-│   └── problemas/
-│
-├── examples/
-│
-├── docs/
-│   ├── mathematics.md
-│   ├── simplex-algorithm.md
-│   ├── tableau.md
-│   ├── pivoting.md
-│   ├── architecture.md
-│   └── decisions.md
-│
-├── .gitignore
-├── README.md
-├── CHANGELOG.md
-├── LICENSE
-└── Makefile
+├── src/                  # Código-fonte em C (.c)
+├── include/              # Ficheiros de cabeçalho (.h)
+├── data/                 # Ficheiros de entrada para testes (*.txt)
+├── docs/                 # Relatório técnico (PDF) e documentação
+├── Makefile              # Automação de compilação
+└── README.md             # Documentação do repositório
 ```
 
-## 🛠️ Tecnologias
+## ▶️ Como Compilar e Executar
 
-**Linguagem:** C
-**Ferramentas:** GCC, Visual Studio Code, Git, GitHub
-**Conceitos computacionais:** Matrizes, Structs, Ponteiros, Alocação dinâmica, Funções, Modularização, Manipulação de memória, Arquivos, Testes, Algoritmos numéricos
+### Pré-requisitos
 
-## 🧠 Conceitos Estudados
+Compilador C (GCC recomendável) instalado no sistema.
 
-O projeto envolve conhecimentos de diferentes áreas:
+### Compilação
 
-* **Matemática:** Álgebra linear, Matrizes, Sistemas de equações, Inequações, Função objetivo, Região factível, Solução ótima.
-* **Pesquisa Operacional:** Programação Linear, Método Simplex, Variáveis de decisão, Variáveis de folga, Solução básica, Base, Pivoteamento, Degeneração, Solução ilimitada, Problema inviável.
-* **Programação:** C, Structs, Ponteiros, Matrizes, Alocação dinâmica, Modularização, Manipulação de arquivos.
-* **Engenharia de Software:** Arquitetura, Separação de responsabilidades, Testes, Versionamento, Documentação, Controle de mudanças.
+Utilizando o GCC diretamente no terminal:
 
-## 📋 Requisitos Funcionais
-
-| ID   | Requisito |
-|------|-----------|
-| RF01 | Representar um problema de Programação Linear |
-| RF02 | Armazenar variáveis de decisão |
-| RF03 | Armazenar restrições |
-| RF04 | Armazenar função objetivo |
-| RF05 | Criar tableau inicial |
-| RF06 | Exibir tableau |
-| RF07 | Identificar coluna pivô |
-| RF08 | Executar teste da razão |
-| RF09 | Identificar linha pivô |
-| RF10 | Executar pivoteamento |
-| RF11 | Atualizar o tableau |
-| RF12 | Verificar optimalidade |
-| RF13 | Executar múltiplas iterações |
-| RF14 | Obter valores das variáveis |
-| RF15 | Exibir valor da função objetivo |
-| RF16 | Detectar solução ilimitada |
-| RF17 | Registrar iterações |
-
-## ⚙️ Requisitos Não Funcionais
-
-* **RNF01 — Precisão**: O programa deverá utilizar `double` para representar valores reais.
-* **RNF02 — Portabilidade**: O código deverá buscar compatibilidade com compiladores C padrão.
-* **RNF03 — Organização**: A lógica matemática deverá ser separada da interface de entrada e saída.
-* **RNF04 — Manutenibilidade**: As funções deverão possuir responsabilidades bem definidas.
-* **RNF05 — Testabilidade**: As principais operações matemáticas deverão poder ser testadas individualmente.
-* **RNF06 — Transparência**: O programa deverá permitir visualizar as etapas do algoritmo, facilitando a compreensão do funcionamento do Simplex.
-
-## 🔢 Precisão Numérica
-
-Como o Simplex trabalha com números reais, o projeto utilizará: `double`.
-Comparações diretas entre números de ponto flutuante deverão ser evitadas quando apropriado. Será utilizado um valor de tolerância, por exemplo: $\varepsilon$ para determinar quando um valor pode ser considerado suficientemente próximo de zero. A tolerância deverá ser documentada e testada, pois uma escolha inadequada pode causar decisões incorretas durante o algoritmo.
-
-## ⚠️ Casos Especiais
-
-Uma implementação completa do Simplex precisa considerar situações que vão além do caso básico:
-* **Solução ótima:** Existe uma solução factível que satisfaz o critério de optimalidade.
-* **Solução ilimitada:** O valor da função objetivo pode continuar melhorando indefinidamente.
-* **Problema inviável:** Não existe solução que satisfaça simultaneamente todas as restrições.
-* **Múltiplas soluções ótimas:** Mais de uma solução pode produzir o mesmo valor ótimo da função objetivo.
-* **Degeneração:** Pode ocorrer quando uma solução básica possui uma variável básica com valor zero.
-
-## 🧪 Testes
-
-Os testes serão desenvolvidos junto com as funcionalidades.
-* **Teste do tableau:** Verificar se o tableau inicial foi construído corretamente.
-* **Teste da coluna pivô:** Verificar se a variável de entrada foi identificada corretamente.
-* **Teste da razão:** Verificar $\frac{RHS}{\text{coeficiente da coluna pivô}}$ e a seleção da menor razão válida.
-* **Teste de pivoteamento:** Verificar se as operações de linha produzem o tableau esperado.
-* **Teste de optimalidade:** Verificar se o algoritmo identifica corretamente quando não é necessária uma nova iteração.
-* **Teste de solução:** Comparar a solução encontrada pelo programa com uma solução previamente conhecida.
-* **Testes de casos especiais:** Serão adicionados casos para solução ilimitada, problema inviável, múltiplas soluções, degeneração e valores próximos de zero.
-
-## 🔬 Estratégia de Desenvolvimento
-
-O projeto seguirá uma abordagem incremental:
-
-* **Fase 1 — Fundamentos matemáticos:** Entender Programação Linear, solução factível, variáveis de folga, tableau, base e pivoteamento.
-* **Fase 2 — Estrutura do projeto:** Criar diretórios e configurar Git e GitHub.
-* **Fase 3 — Modelo matemático:** Implementar estruturas capazes de representar variáveis, restrições, coeficientes, RHS e função objetivo.
-* **Fase 4 — Tableau:** Implementar criação, armazenamento, acesso, impressão e liberação da memória.
-* **Fase 5 — Algoritmo Simplex:** Implementar escolha da coluna/linha pivô, teste da razão, pivoteamento, atualização e critério de parada.
-* **Fase 6 — Testes:** Criar problemas conhecidos e comparar os resultados.
-* **Fase 7 — Casos especiais:** Adicionar ilimitado, inviável, degeneração, múltiplas soluções.
-* **Fase 8 — Expansão:** Adicionar $\geq$, $=$, minimização, variáveis artificiais, Big M e Duas Fases.
-
-## 🌿 Git e GitHub
-
-O Git será utilizado desde o início do projeto. Cada funcionalidade importante deverá ser registrada separadamente.
-* **Branch inicial:** `main`
-* **Branches de desenvolvimento:** `feature/tableau`, `feature/pivotamento`, `feature/testes`, `feature/big-m`
-
-### 📝 Padrão de Commits
-Os commits seguirão uma convenção baseada em tipos:
-* `chore: inicializa projeto simplex em C`
-* `docs: adiciona documentação inicial do projeto`
-* `feat: cria representação de problema linear`
-* `test: adiciona testes do tableau`
-* `refactor: separa lógica do simplex do programa principal`
-
-### 🐙 GitHub
-O repositório deverá conter: README, código-fonte, documentação, testes, exemplos, `.gitignore`, histórico de commits organizado, Issues, branches, Pull Requests, Releases e tags.
-
-### 📌 Issues Planejadas
-* **#1** — Configurar projeto
-* **#2** — Criar representação do problema
-* **#3** — Implementar tableau
-* **#4** — Implementar seleção do pivô
-* **#5** — Implementar pivoteamento
-* **#6** — Implementar critério de parada
-* **#7** — Criar problemas de teste
-* **#8** — Tratar solução ilimitada
-* **#9** — Tratar problema inviável
-* **#10** — Implementar Big M
-* **#11** — Implementar Duas Fases
-
-## 🚀 Roadmap
-
-```text
-                    SIMPLEX EM C
-                         │
-                         ▼
-              ┌─────────────────────┐
-              │ Fundamentos         │
-              │ Matemáticos         │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ Estrutura do        │
-              │ Projeto             │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ Tableau             │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ Pivoteamento        │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ Simplex completo    │
-              │ para caso básico    │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ Testes              │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ Casos especiais     │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ Big M               │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ Duas Fases          │
-              └──────────┬──────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ v1.0.0              │
-              └─────────────────────┘
-```
-
-## 📚 Documentação
-
-A documentação será dividida em arquivos específicos:
-* `mathematics.md`: Conceitos matemáticos utilizados.
-* `simplex-algorithm.md`: Descrição passo a passo do algoritmo.
-* `tableau.md`: Explicação da estrutura do tableau.
-* `pivoting.md`: Explicação matemática e computacional do pivoteamento.
-* `architecture.md`: Descrição da arquitetura do software.
-* `decisions.md`: Registro das decisões técnicas e matemáticas do projeto.
-
-## 🔮 Possíveis Evoluções
-
-* **Entrada pelo terminal:** Permitir que o usuário informe dinamicamente.
-* **Entrada por arquivo:** Exemplo: `problema.txt`.
-* **Visualização das iterações:** Exibir cada passo e tableau correspondente.
-* **Minimização:** Adicionar suporte a $Min Z = ...$
-* **Restrições gerais:** Adicionar $\leq$, $\geq$, $=$
-* **Big M & Duas Fases:** Suporte para variáveis artificiais.
-* **Interface:** Criar uma interface para visualização do processo.
-
-## ▶️ Como Executar
-
-**Pré-requisitos:** É necessário possuir um compilador C (Ex: `gcc --version`).
-
-**Compilação:**
 ```bash
-gcc src/main.c -o simplex
-# Após a modularização:
-gcc src/*.c -Iinclude -o simplex
+gcc -Wall src/*.c -Iinclude -o simplex
 ```
 
-**Execução no Windows:**
+Ou utilizando o Makefile (se disponível):
+
 ```bash
-simplex.exe
-# ou:
-.\simplex.exe
+make
 ```
 
-**Execução no Linux:**
+### Execução
+
+Passe o caminho do ficheiro de entrada como argumento no terminal:
+
+**Linux / macOS:**
+
 ```bash
-./simplex
+./simplex data/entrada.txt
 ```
 
-## 💻 Exemplo de Execução
+**Windows (PowerShell / CMD):**
 
-Exemplo conceitual:
-
-```text
-========================================
-       MÉTODO SIMPLEX EM C
-========================================
-
-Problema:
-Max Z = 3x1 + 5x2
-
-Sujeito a:
-x1 + 2x2 <= 8
-3x1 + 2x2 <= 12
-x1 >= 0
-x2 >= 0
-
-----------------------------------------
-TABLEAU INICIAL
-----------------------------------------
-        x1      x2      s1      s2      RHS
-s1      1       2       1       0        8
-s2      3       2       0       1       12
-Z      -3      -5       0       0        0
-
-----------------------------------------
-ITERACAO 1
-----------------------------------------
-Coluna pivô: x2
-Linha pivô: s1
-...
-
-----------------------------------------
-SOLUÇÃO
-----------------------------------------
-x1 = 2
-x2 = 3
-Z = 21
+```bash
+.\simplex.exe data\entrada.txt
 ```
 
-## 📈 Versionamento
+## 👨‍💻 Equipa e Avaliação
 
-O projeto utilizará Versionamento Semântico no formato `MAJOR.MINOR.PATCH` (Ex: `v0.1.0`).
+- **Disciplina:** Pesquisa Operacional
+- **Professor:** Prof. Rafael Martins Barros
+- **Instituição:** Universidade Federal do Ceará (UFC) — Campus Crateús
+- **Curso:** Sistemas de Informação / Ciência da Computação
 
-### 📋 Histórico de Versões
+### Integrantes do Grupo (até 3 membros)
 
-| Versão | Descrição | Status |
-|--------|-----------|--------|
-| v0.1.0 | Simplex básico | 🔄 Em desenvolvimento |
-| v0.2.0 | Tableau completo | ⏳ Planejado |
-| v0.3.0 | Entrada dinâmica | ⏳ Planejado |
-| v0.4.0 | Restrições gerais | ⏳ Planejado |
-| v0.5.0 | Casos especiais | ⏳ Planejado |
-| v0.6.0 | Big M | ⏳ Planejado |
-| v0.7.0 | Duas Fases | ⏳ Planejado |
-| v0.8.0 | Entrada por arquivos | ⏳ Planejado |
-| v0.9.0 | Testes e refinamentos | ⏳ Planejado |
-| v1.0.0 | Solver inicial completo | ⏳ Planejado |
-
-## 🎓 Aprendizados
-
-Este projeto busca desenvolver conhecimentos em três níveis:
-* **🧮 Nível Matemático:** Programação Linear, matrizes, sistemas lineares, álgebra linear, otimização, Método Simplex.
-* **💻 Nível de Programação:** linguagem C, ponteiros, structs, matrizes, memória dinâmica, modularização, algoritmos, tratamento de números reais.
-* **🏗️ Nível de Engenharia de Software:** arquitetura, organização de código, testes, Git, GitHub, documentação, versionamento, Issues, Pull Requests, Releases. 
-
-## 🔐 Boas Práticas
-
-O projeto seguirá algumas práticas: validar entradas, verificar falhas de alocação, evitar acessos inválidos à memória, liberar memória alocada, evitar código duplicado, separar responsabilidades, documentar decisões importantes, testar casos extremos.
-
-🚫 **Arquivos que não devem ser versionados:** O `.gitignore` deverá impedir o envio de arquivos como `*.exe`, `*.o`, `*.obj`, `build/`, `bin/`, `.vscode/`.
-
-## 📌 Checklist do Projeto
-
-**Fundamentos**
-- [ ] Entender Programação Linear
-- [ ] Entender função objetivo
-- [ ] Entender restrições
-- [ ] Entender variáveis de folga
-- [ ] Entender tableau
-- [ ] Entender pivoteamento
-
-**Implementação**
-- [ ] Criar modelo
-- [ ] Criar matriz
-- [ ] Criar tableau
-- [ ] Implementar coluna pivô
-- [ ] Implementar teste da razão
-- [ ] Implementar linha pivô
-- [ ] Implementar pivoteamento
-- [ ] Implementar critério de parada
-- [ ] Extrair solução
-
-**Testes**
-- [ ] Testar tableau
-- [ ] Testar pivoteamento
-- [ ] Testar solução conhecida
-- [ ] Testar múltiplas iterações
-- [ ] Testar números decimais
-- [ ] Testar solução ilimitada
-- [ ] Testar problema inviável
-- [ ] Testar degeneração
-
-**Engenharia**
-- [ ] README
-- [ ] .gitignore
-- [ ] Organização de diretórios
-- [ ] Git & Commits
-- [ ] Issues & Branches
-- [ ] Pull Requests & Tags
-- [ ] Releases & CHANGELOG
-
-**Documentação**
-- [ ] Matemática
-- [ ] Algoritmo
-- [ ] Tableau
-- [ ] Pivoteamento
-- [ ] Arquitetura
-- [ ] Decisões técnicas
-
-## 📌 Status
-🚧 **Em desenvolvimento**
-O projeto encontra-se em fase de implementação e estudo. O escopo inicial prioriza o entendimento e a implementação correta do Simplex para problemas de maximização com restrições $\leq$ e variáveis não negativas.
-
-## 📄 Licença
-Este projeto poderá ser distribuído sob a licença **MIT License**. A licença definitiva deverá ser adicionada ao arquivo `LICENSE`.
-
-## 👨‍💻 Autor
-**Dagoberto Silva**
-🎓 Graduando em Ciência da Computação — UFC
-💻 Interesse em: Algoritmos, Programação em C/C++, Sistemas Embarcados, IoT, Robótica, Redes de Computadores, Inteligência Artificial, Pesquisa Operacional.
-
----
-⭐ **Objetivo do Projeto**
-Mais do que implementar um algoritmo, este projeto busca demonstrar a capacidade de transformar um problema matemático em uma solução computacional estruturada, passando por todas as etapas:
-`Matemática → Modelagem → Algoritmo → Implementação → Testes → Documentação → Versionamento → Software`
-O objetivo final é possuir não apenas um programa que execute o Método Simplex, mas uma implementação compreensível, testável, documentada e evolutiva, capaz de servir como projeto acadêmico e peça de portfólio.
+- Dagoberto Silva — Graduando em Ciência da Computação
+- [Nome do Integrante 2] — Curso
+- [Nome do Integrante 3] — Curso
