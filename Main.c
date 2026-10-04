@@ -983,6 +983,13 @@ if (numeroRestricoesMaiorIgual > 0) {
 }
 
 
+    for (i = 0; i < numeroVariaveisDecisao; i++)
+    {
+       fprintf(problemaSimplexCompleto, "x%d >= 0\n", i+1);
+       fprintf(arquivoRestricoes, "x%d >= 0\n", i+1);
+    }
+    
+
     // ============================================================
     // FECHANDO OS ARQUIVOS
     //

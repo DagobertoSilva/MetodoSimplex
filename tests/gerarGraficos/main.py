@@ -23,9 +23,11 @@ caminho = Path(__file__).parent / "restricoes.txt"
 # ==========================================
 
 if not caminho.exists():
+
     print("Erro: arquivo restricoes.txt não encontrado.")
     print("Caminho procurado:")
     print(caminho)
+
     sys.exit()
 
 
@@ -38,18 +40,85 @@ with open(caminho, "r", encoding="utf-8") as arquivo:
 
 
 # ==========================================
-# 4. EXPRESSÃO REGULAR
+# 4. EXPRESSÕES REGULARES
 # ==========================================
 
-padrao = r"([+-]?\d*\.?\d*)x1\s*([+-]?\d*\.?\d*)x2\s*(<=|>=|=|≤|≥)\s*([+-]?\d*\.?\d*)"
+# ------------------------------------------------
+# Restrição com x1 e x2
+#
+# Exemplos:
+# x1 + 3x2 <= 20
+# 2x1 - x2 >= 10
+# 3x1 + 2x2 = 15
+# ------------------------------------------------
+
+padrao_duas_variaveis = (
+    r"([+-]?(?:\d+(?:\.\d+)?)?)x1"
+    r"([+-](?:\d+(?:\.\d+)?)?)x2"
+    r"(<=|>=|=|≤|≥)"
+    r"([+-]?\d+(?:\.\d+)?)"
+)
 
 
-# Lista para guardar as restrições
+# ------------------------------------------------
+# Não negatividade de x1
+#
+# Exemplos:
+# x1 >= 0
+# x1 >= 0.0
+# x1 ≥ 0
+# ------------------------------------------------
+
+padrao_x1 = (
+    r"x1"
+    r"(<=|>=|=|≤|≥)"
+    r"([+-]?\d+(?:\.\d+)?)"
+)
+
+
+# ------------------------------------------------
+# Não negatividade de x2
+#
+# Exemplos:
+# x2 >= 0
+# x2 >= 0.0
+# x2 ≥ 0
+# ------------------------------------------------
+
+padrao_x2 = (
+    r"x2"
+    r"(<=|>=|=|≤|≥)"
+    r"([+-]?\d+(?:\.\d+)?)"
+)
+
+
+# ==========================================
+# 5. LISTAS PARA GUARDAR AS RESTRIÇÕES
+# ==========================================
+
 restricoes = []
 
+nao_negatividade_x1 = False
+nao_negatividade_x2 = False
+
 
 # ==========================================
-# 5. LER CADA LINHA
+# 6. FUNÇÃO PARA CONVERTER COEFICIENTES
+# ==========================================
+
+def converter_coeficiente(valor):
+
+    if valor == "" or valor == "+":
+        return 1.0
+
+    if valor == "-":
+        return -1.0
+
+    return float(valor)
+
+
+# ==========================================
+# 7. LER CADA LINHA
 # ==========================================
 
 for linha in linhas:
@@ -60,29 +129,118 @@ for linha in linhas:
     if not linha:
         continue
 
-    print("\nRestrição lida:")
+    print("\n" + "=" * 50)
+    print("Restrição lida:")
     print(linha)
 
+    # ------------------------------------------
     # Remover espaços
+    # ------------------------------------------
+
     linha_sem_espacos = linha.replace(" ", "")
 
-    # Procurar os valores
+    # ------------------------------------------
+    # Converter operadores Unicode
+    # ------------------------------------------
+
+    linha_sem_espacos = (
+        linha_sem_espacos
+        .replace("≤", "<=")
+        .replace("≥", ">=")
+    )
+
+    # ==========================================
+    # 8. VERIFICAR x1 >= 0
+    # ==========================================
+
+    resultado_x1 = re.fullmatch(
+        padrao_x1,
+        linha_sem_espacos
+    )
+
+    if resultado_x1:
+
+        operador = resultado_x1.group(1)
+        valor = float(resultado_x1.group(2))
+
+        print("\nTipo: Não negatividade de x1")
+        print("Variável: x1")
+        print("Operador:", operador)
+        print("Valor:", valor)
+
+        if operador == ">=" and valor == 0:
+
+            nao_negatividade_x1 = True
+
+            print("✓ Restrição de não negatividade detectada:")
+            print("  x1 >= 0")
+
+        else:
+
+            print(
+                "Aviso: esta é uma restrição somente de x1, "
+                "mas não representa x1 >= 0."
+            )
+
+        continue
+
+
+    # ==========================================
+    # 9. VERIFICAR x2 >= 0
+    # ==========================================
+
+    resultado_x2 = re.fullmatch(
+        padrao_x2,
+        linha_sem_espacos
+    )
+
+    if resultado_x2:
+
+        operador = resultado_x2.group(1)
+        valor = float(resultado_x2.group(2))
+
+        print("\nTipo: Não negatividade de x2")
+        print("Variável: x2")
+        print("Operador:", operador)
+        print("Valor:", valor)
+
+        if operador == ">=" and valor == 0:
+
+            nao_negatividade_x2 = True
+
+            print("✓ Restrição de não negatividade detectada:")
+            print("  x2 >= 0")
+
+        else:
+
+            print(
+                "Aviso: esta é uma restrição somente de x2, "
+                "mas não representa x2 >= 0."
+            )
+
+        continue
+
+
+    # ==========================================
+    # 10. VERIFICAR RESTRIÇÃO COM x1 E x2
+    # ==========================================
+
     resultado = re.fullmatch(
-        padrao,
+        padrao_duas_variaveis,
         linha_sem_espacos
     )
 
     if not resultado:
 
-        print("Erro: formato inválido:")
+        print("\nErro: formato inválido:")
         print(linha)
 
         continue
 
 
-    # ======================================
-    # 6. PEGAR OS VALORES
-    # ======================================
+    # ==========================================
+    # 11. PEGAR OS VALORES
+    # ==========================================
 
     coef_x1 = resultado.group(1)
     coef_x2 = resultado.group(2)
@@ -90,29 +248,20 @@ for linha in linhas:
     valor = resultado.group(4)
 
 
-    # ======================================
-    # 7. CONVERTER COEFICIENTES
-    # ======================================
-
-    def converter_coeficiente(valor):
-
-        if valor == "" or valor == "+":
-            return 1
-
-        if valor == "-":
-            return -1
-
-        return float(valor)
-
+    # ==========================================
+    # 12. CONVERTER COEFICIENTES
+    # ==========================================
 
     a = converter_coeficiente(coef_x1)
     b = converter_coeficiente(coef_x2)
     c = float(valor)
 
 
-    # ======================================
-    # 8. MOSTRAR RESULTADO
-    # ======================================
+    # ==========================================
+    # 13. MOSTRAR RESULTADO
+    # ==========================================
+
+    print("\nTipo: Restrição com duas variáveis")
 
     print("Coeficiente de x1:", a)
     print("Coeficiente de x2:", b)
@@ -120,9 +269,9 @@ for linha in linhas:
     print("Valor:", c)
 
 
-    # ======================================
-    # 9. GUARDAR A RESTRIÇÃO
-    # ======================================
+    # ==========================================
+    # 14. GUARDAR RESTRIÇÃO
+    # ==========================================
 
     restricoes.append({
         "a": a,
@@ -134,10 +283,38 @@ for linha in linhas:
 
 
 # ==========================================
-# 10. VERIFICAR SE ENCONTROU RESTRIÇÕES
+# 15. ANALISAR NÃO NEGATIVIDADE
 # ==========================================
 
-if not restricoes:
+print("\n")
+print("=" * 60)
+print("             ANÁLISE DE NÃO NEGATIVIDADE")
+print("=" * 60)
+
+
+if nao_negatividade_x1:
+
+    print("✓ x1 >= 0 está presente.")
+
+else:
+
+    print("⚠ x1 >= 0 NÃO está presente.")
+
+
+if nao_negatividade_x2:
+
+    print("✓ x2 >= 0 está presente.")
+
+else:
+
+    print("⚠ x2 >= 0 NÃO está presente.")
+
+
+# ==========================================
+# 16. VERIFICAR RESTRIÇÕES
+# ==========================================
+
+if not restricoes and not nao_negatividade_x1 and not nao_negatividade_x2:
 
     print("\nNenhuma restrição válida encontrada.")
 
@@ -145,14 +322,14 @@ if not restricoes:
 
 
 # ==========================================
-# 11. CRIAR O GRÁFICO
+# 17. CRIAR O GRÁFICO
 # ==========================================
 
 plt.figure(figsize=(10, 7))
 
 
 # ==========================================
-# 12. DESENHAR CADA RESTRIÇÃO
+# 18. DESENHAR RESTRIÇÕES NORMAIS
 # ==========================================
 
 for restricao in restricoes:
@@ -186,6 +363,12 @@ for restricao in restricoes:
 
     # --------------------------------------
     # Calcular x2
+    #
+    # ax1 + bx2 = c
+    #
+    # bx2 = c - ax1
+    #
+    # x2 = (c - ax1) / b
     # --------------------------------------
 
     x2 = []
@@ -210,7 +393,79 @@ for restricao in restricoes:
 
 
 # ==========================================
-# 13. DESENHAR EIXOS
+# 19. DESENHAR NÃO NEGATIVIDADE DE x1
+# ==========================================
+
+if nao_negatividade_x1:
+
+    # x1 = 0
+    #
+    # No gráfico:
+    # x1 corresponde ao eixo horizontal
+    # x2 corresponde ao eixo vertical
+    #
+    # Portanto x1 = 0 é o eixo vertical.
+
+    x2_eixo = list(range(0, 31))
+
+    x1_eixo = [0] * len(x2_eixo)
+
+    plt.plot(
+        x1_eixo,
+        x2_eixo,
+        linewidth=3,
+        linestyle="--",
+        label="x1 >= 0"
+    )
+
+
+# ==========================================
+# 20. DESENHAR NÃO NEGATIVIDADE DE x2
+# ==========================================
+
+if nao_negatividade_x2:
+
+    # x2 = 0
+    #
+    # Portanto é o eixo horizontal.
+
+    x1_eixo = list(range(0, 31))
+
+    x2_eixo = [0] * len(x1_eixo)
+
+    plt.plot(
+        x1_eixo,
+        x2_eixo,
+        linewidth=3,
+        linestyle="--",
+        label="x2 >= 0"
+    )
+
+
+# ==========================================
+# 21. DESTACAR A REGIÃO DE NÃO NEGATIVIDADE
+# ==========================================
+
+if nao_negatividade_x1 and nao_negatividade_x2:
+
+    # Quando temos:
+    #
+    # x1 >= 0
+    # x2 >= 0
+    #
+    # estamos trabalhando apenas no
+    # primeiro quadrante.
+
+    plt.fill_between(
+        [0, 30],
+        0,
+        30,
+        alpha=0.08
+    )
+
+
+# ==========================================
+# 22. DESENHAR EIXOS
 # ==========================================
 
 plt.axhline(
@@ -225,13 +480,18 @@ plt.axvline(
 
 
 # ==========================================
-# 14. CONFIGURAÇÕES
+# 23. CONFIGURAÇÕES DO GRÁFICO
 # ==========================================
+
+plt.xlim(0, 30)
+plt.ylim(0, 30)
 
 plt.xlabel("x1")
 plt.ylabel("x2")
 
-plt.title("Gráfico das Restrições")
+plt.title(
+    "Gráfico das Restrições e Condições de Não Negatividade"
+)
 
 plt.grid(True)
 
@@ -239,7 +499,7 @@ plt.legend()
 
 
 # ==========================================
-# 15. MOSTRAR
+# 24. MOSTRAR GRÁFICO
 # ==========================================
 
 plt.show()
