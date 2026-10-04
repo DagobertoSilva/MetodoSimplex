@@ -26,7 +26,16 @@ int main(){
     }
      
     problemaSimplexCompleto = fopen("C:\\Users\\Dagoberto\\Desktop\\MetodoSimples\\problemaSimplex.txt", "w");
-    fprintf(problemaSimplexCompleto, "z = %dx1 + %dx2 \n",  coeficienteFuncaoObjetivo[0], coeficienteFuncaoObjetivo[1]);
+    fprintf(problemaSimplexCompleto, "z = ");
+    for (i = 0; i < numeroVariaveisDecisao; i++)
+        {
+            if(i == 0)
+                fprintf(problemaSimplexCompleto, " %dx%d",  coeficienteFuncaoObjetivo[i], i+1);
+            else
+                fprintf(problemaSimplexCompleto, " + %dx%d",  coeficienteFuncaoObjetivo[i], i+1);
+           
+        }
+    fprintf(problemaSimplexCompleto, "\n");
 
     //----------------------------------------------------------------------RECEBENDO AS VARIÁVEIS DAS RETRIÇÕES----------------------------------------------------------------------------
     int ** matrizdeCoeficienteseTermoIndependentesMaiorIgual;
@@ -54,16 +63,38 @@ int main(){
     }
 
     /*4. Mostrar Matriz dos coeficientes e termos independentes da restrições de menor e igual*/
-      arquivoRestricoes = fopen("C:\\Users\\Dagoberto\\Desktop\\MetodoSimples\\tests\\gerarGraficos\\restricoes.txt", "r");
-        for (i = 0; i < numeroRestricoesMenorIgual; i++){
-            for (j = 0; j < numeroVariaveisDecisao; j++) {
-                fprintf(problemaSimplexCompleto,"%dx%d", matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][j],j + 1);
+      arquivoRestricoes = fopen("C:\\Users\\Dagoberto\\Desktop\\MetodoSimples\\tests\\gerarGraficos\\restricoes.txt", "w");
+      
 
-                if (j < numeroVariaveisDecisao - 1) {
-                    fprintf(problemaSimplexCompleto, " + ");
+        for (i = 0; i < numeroRestricoesMenorIgual; i++) {
+
+            for (j = 0; j < numeroVariaveisDecisao; j++) {
+
+                int coeficiente =matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][j];
+
+                if (j == 0) {
+                    fprintf(problemaSimplexCompleto,"%dx%d",coeficiente,j + 1);
+
+                    fprintf(arquivoRestricoes,"%dx%d",coeficiente,j + 1);
+
+                } else {
+
+                    if (coeficiente >= 0) {
+                        fprintf(problemaSimplexCompleto," + %dx%d",coeficiente,j + 1);
+
+                        fprintf(arquivoRestricoes," + %dx%d",coeficiente,j + 1);
+
+                    } else {
+                        fprintf(problemaSimplexCompleto," - %dx%d",-coeficiente,j + 1);
+
+                        fprintf(arquivoRestricoes," - %dx%d",-coeficiente,j + 1);
+                    }
                 }
             }
-             printf(" <= %d\n",matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][numeroVariaveisDecisao]);
+
+            fprintf(problemaSimplexCompleto," <= %d\n", matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][numeroVariaveisDecisao]);
+
+            fprintf(arquivoRestricoes," <= %d\n",matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][numeroVariaveisDecisao]);
         }
 
 
@@ -72,7 +103,7 @@ int main(){
     //fprintf(arquivoRestricoes, "%dx1 + %dx2 ≤ 20\n",  coeficienteFuncaoObjetivo[0], coeficienteFuncaoObjetivo[1]);
      //system("python -u  "); tentativa de chamar e executar arquivo python usando C
     
-   // fclose(arquivoRestricoes);
+    fclose(arquivoRestricoes);
     fclose(problemaSimplexCompleto);
     return 0;
 }
