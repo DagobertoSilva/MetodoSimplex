@@ -1,109 +1,1069 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(){
-    int numeroVariaveisDecisao, i, j;
+int main() {
+
+    // ============================================================
+    // VARIÁVEIS PRINCIPAIS
+    // ============================================================
+
+    int numeroVariaveisDecisao;
     int numeroRestricoesMenorIgual;
     int numeroRestricoesIgual;
     int numeroRestricoesMaiorIgual;
-    FILE* arquivoRestricoes;
-    FILE* problemaSimplexCompleto;
 
-  //----------------------------------------------------------------------RECEBENDO AS VARIÁVEIS DAS RETRIÇÕES NA FUNÇÃO OBJETIVO----------------------------------------------------------------------------
-    printf("Digite a quantidade de variaveis de Decisao: ");
+    int i, j;
+
+    FILE *arquivoRestricoes;
+    FILE *problemaSimplexCompleto;
+
+
+    // ============================================================
+    // CAMINHOS DOS ARQUIVOS
+    // ============================================================
+
+    const char *caminhoProblema ="C:\\Users\\Dagoberto\\Desktop\\MetodoSimplex\\problemaSimplex.txt";
+
+    const char *caminhoRestricoes ="C:\\Users\\Dagoberto\\Desktop\\MetodoSimplex\\tests\\gerarGraficos\\restricoes.txt";
+
+
+    // ============================================================
+    // ABERTURA DOS ARQUIVOS
+    // ============================================================
+
+    problemaSimplexCompleto = fopen(caminhoProblema, "w");
+
+    if (problemaSimplexCompleto == NULL) {
+
+        printf("\n============================================\n");
+        printf("ERRO AO ABRIR problemaSimplex.txt\n");
+        printf("============================================\n");
+
+        printf("\nCaminho utilizado:\n");
+        printf("%s\n", caminhoProblema);
+
+        return 1;
+    }
+
+
+    arquivoRestricoes = fopen(caminhoRestricoes, "w");
+
+    if (arquivoRestricoes == NULL) {
+
+        printf("\n============================================\n");
+        printf("ERRO AO ABRIR restricoes.txt\n");
+        printf("============================================\n");
+
+        printf("\nCaminho utilizado:\n");
+        printf("%s\n", caminhoRestricoes);
+
+        printf("\nVerifique se a pasta existe:\n");
+        printf("C:\\Users\\Dagoberto\\Desktop\\MetodoSimples\\tests\\gerarGraficos\n");
+
+        fclose(problemaSimplexCompleto);
+
+        return 1;
+    }
+
+
+    printf("\n============================================\n");
+    printf("ARQUIVOS ABERTOS COM SUCESSO!\n");
+    printf("============================================\n");
+
+
+    // ============================================================
+    // RECEBENDO A QUANTIDADE DE VARIÁVEIS DE DECISÃO
+    // ============================================================
+
+    printf("\nDigite a quantidade de variaveis de decisao: ");
     scanf("%d", &numeroVariaveisDecisao);
+
+
+    if (numeroVariaveisDecisao <= 0) {
+
+        printf("\nErro: a quantidade de variaveis deve ser maior que zero.\n");
+
+        fclose(arquivoRestricoes);
+        fclose(problemaSimplexCompleto);
+
+        return 1;
+    }
+
+
+    // ============================================================
+    // ALOCAÇÃO DA FUNÇÃO OBJETIVO
+    // ============================================================
+
     int *coeficienteFuncaoObjetivo;
 
-    coeficienteFuncaoObjetivo = (int *) malloc(sizeof(int) * numeroVariaveisDecisao);
+    coeficienteFuncaoObjetivo =
+        malloc(numeroVariaveisDecisao * sizeof(int));
 
-    if (coeficienteFuncaoObjetivo != NULL){
-        for (i = 0; i < numeroVariaveisDecisao; i++)
-        {
-           printf("VAlor da VAriavel de decisao x%d da funcao objetivo: ", i+1);
-           scanf("%d", &coeficienteFuncaoObjetivo[i]);
-        }
-        
-    }
-     
-    problemaSimplexCompleto = fopen("C:\\Users\\Dagoberto\\Desktop\\MetodoSimples\\problemaSimplex.txt", "w");
-    fprintf(problemaSimplexCompleto, "z = ");
-    for (i = 0; i < numeroVariaveisDecisao; i++)
-        {
-            if(i == 0)
-                fprintf(problemaSimplexCompleto, " %dx%d",  coeficienteFuncaoObjetivo[i], i+1);
-            else
-                fprintf(problemaSimplexCompleto, " + %dx%d",  coeficienteFuncaoObjetivo[i], i+1);
-           
-        }
-    fprintf(problemaSimplexCompleto, "\n");
 
-    //----------------------------------------------------------------------RECEBENDO AS VARIÁVEIS DAS RETRIÇÕES----------------------------------------------------------------------------
-    int ** matrizdeCoeficienteseTermoIndependentesMaiorIgual;
-    
-    printf("Digite a quantidade de Restricoes do Tipo <=: ");
-    scanf("%d", &numeroRestricoesMenorIgual);
+    if (coeficienteFuncaoObjetivo == NULL) {
 
-    
+        printf("\nErro ao alocar memoria para a funcao objetivo.\n");
 
-     // 1. Aloca o vetor de ponteiros para as linhas
-    matrizdeCoeficienteseTermoIndependentesMaiorIgual =  malloc(numeroRestricoesMenorIgual * sizeof(int *));
+        fclose(arquivoRestricoes);
+        fclose(problemaSimplexCompleto);
 
-    // 2. Aloca o vetor de elementos para cada linha
-    for (i = 0; i < numeroRestricoesMenorIgual; i++) {
-        matrizdeCoeficienteseTermoIndependentesMaiorIgual[i] =   malloc((numeroVariaveisDecisao + 1) * sizeof(int));
+        return 1;
     }
 
-    /* 3. Preenche a matriz */
-    for (i = 0; i < numeroRestricoesMenorIgual; i++){
-        for (j = 0; j < numeroVariaveisDecisao+1; j++)
-        {
-            scanf("%d", &matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][j]);
-        }
-        
+
+    // ============================================================
+    // RECEBENDO A FUNÇÃO OBJETIVO
+    // ============================================================
+
+    printf("\n");
+    printf("============================================\n");
+    printf("           FUNCAO OBJETIVO\n");
+    printf("============================================\n");
+
+
+    for (i = 0; i < numeroVariaveisDecisao; i++) {
+
+        printf(
+            "Valor da variavel de decisao x%d: ",
+            i + 1
+        );
+
+        scanf(
+            "%d",
+            &coeficienteFuncaoObjetivo[i]
+        );
     }
 
-    /*4. Mostrar Matriz dos coeficientes e termos independentes da restrições de menor e igual*/
-      arquivoRestricoes = fopen("C:\\Users\\Dagoberto\\Desktop\\MetodoSimples\\tests\\gerarGraficos\\restricoes.txt", "w");
-      
+
+    // ============================================================
+    // ESCREVENDO A FUNÇÃO OBJETIVO
+    // ============================================================
+
+    fprintf(
+        problemaSimplexCompleto,
+        "z = "
+    );
+
+
+    for (i = 0; i < numeroVariaveisDecisao; i++) {
+
+        int coeficiente =
+            coeficienteFuncaoObjetivo[i];
+
+
+        if (i == 0) {
+
+            if (coeficiente < 0) {
+
+                fprintf(
+                    problemaSimplexCompleto,
+                    "- %dx%d",
+                    -coeficiente,
+                    i + 1
+                );
+
+            } else {
+
+                fprintf(
+                    problemaSimplexCompleto,
+                    "%dx%d",
+                    coeficiente,
+                    i + 1
+                );
+            }
+
+        } else {
+
+            if (coeficiente >= 0) {
+
+                fprintf(
+                    problemaSimplexCompleto,
+                    " + %dx%d",
+                    coeficiente,
+                    i + 1
+                );
+
+            } else {
+
+                fprintf(
+                    problemaSimplexCompleto,
+                    " - %dx%d",
+                    -coeficiente,
+                    i + 1
+                );
+            }
+        }
+    }
+
+
+    fprintf(
+        problemaSimplexCompleto,
+        "\n"
+    );
+
+
+    // ============================================================
+    // RESTRIÇÕES DO TIPO <=
+    // ============================================================
+
+    printf("\n");
+    printf("============================================\n");
+    printf("          RESTRICOES DO TIPO <=\n");
+    printf("============================================\n");
+
+
+    printf(
+        "Digite a quantidade de restricoes do tipo <=: "
+    );
+
+    scanf(
+        "%d",
+        &numeroRestricoesMenorIgual
+    );
+
+
+    if (numeroRestricoesMenorIgual < 0) {
+
+        printf("\nErro: quantidade invalida de restricoes.\n");
+
+        free(coeficienteFuncaoObjetivo);
+
+        fclose(arquivoRestricoes);
+        fclose(problemaSimplexCompleto);
+
+        return 1;
+    }
+
+
+    // ============================================================
+    // MATRIZ DAS RESTRIÇÕES <=
+    //
+    // Cada linha possui:
+    //
+    // x1 | x2 | x3 | ... | xn | termo independente
+    //
+    // ============================================================
+
+    int **matrizMenorIgual = NULL;
+
+
+    if (numeroRestricoesMenorIgual > 0) {
+
+        matrizMenorIgual =
+            malloc(
+                numeroRestricoesMenorIgual *
+                sizeof(int *)
+            );
+
+
+        if (matrizMenorIgual == NULL) {
+
+            printf("\nErro ao alocar matriz das restricoes <=.\n");
+
+            free(coeficienteFuncaoObjetivo);
+
+            fclose(arquivoRestricoes);
+            fclose(problemaSimplexCompleto);
+
+            return 1;
+        }
+
+
+        // --------------------------------------------------------
+        // Aloca cada linha da matriz
+        // --------------------------------------------------------
+
+        for (i = 0; i < numeroRestricoesMenorIgual; i++) {
+
+            matrizMenorIgual[i] =
+                malloc(
+                    (numeroVariaveisDecisao + 1) *
+                    sizeof(int)
+                );
+
+
+            if (matrizMenorIgual[i] == NULL) {
+
+                printf("\nErro ao alocar memoria para a matriz <=.\n");
+
+
+                for (j = 0; j < i; j++) {
+
+                    free(matrizMenorIgual[j]);
+                }
+
+                free(matrizMenorIgual);
+
+                free(coeficienteFuncaoObjetivo);
+
+                fclose(arquivoRestricoes);
+                fclose(problemaSimplexCompleto);
+
+                return 1;
+            }
+        }
+
+
+        // --------------------------------------------------------
+        // Preenche a matriz
+        // --------------------------------------------------------
+
+        for (i = 0; i < numeroRestricoesMenorIgual; i++) {
+
+            printf("\n");
+            printf("Restricao <= %d\n", i + 1);
+
+
+            for (j = 0; j < numeroVariaveisDecisao + 1; j++) {
+
+                if (j < numeroVariaveisDecisao) {
+
+                    printf(
+                        "Coeficiente de x%d: ",
+                        j + 1
+                    );
+
+                } else {
+
+                    printf(
+                        "Termo independente: "
+                    );
+                }
+
+
+                scanf(
+                    "%d",
+                    &matrizMenorIgual[i][j]
+                );
+            }
+        }
+
+
+        // --------------------------------------------------------
+        // Salva as restrições <=
+        // --------------------------------------------------------
 
         for (i = 0; i < numeroRestricoesMenorIgual; i++) {
 
             for (j = 0; j < numeroVariaveisDecisao; j++) {
 
-                int coeficiente =matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][j];
+                int coeficiente =
+                    matrizMenorIgual[i][j];
+
 
                 if (j == 0) {
-                    fprintf(problemaSimplexCompleto,"%dx%d",coeficiente,j + 1);
 
-                    fprintf(arquivoRestricoes,"%dx%d",coeficiente,j + 1);
+                    if (coeficiente < 0) {
+
+                        fprintf(
+                            problemaSimplexCompleto,
+                            "- %dx%d",
+                            -coeficiente,
+                            j + 1
+                        );
+
+                        fprintf(
+                            arquivoRestricoes,
+                            "- %dx%d",
+                            -coeficiente,
+                            j + 1
+                        );
+
+                    } else {
+
+                        fprintf(
+                            problemaSimplexCompleto,
+                            "%dx%d",
+                            coeficiente,
+                            j + 1
+                        );
+
+                        fprintf(
+                            arquivoRestricoes,
+                            "%dx%d",
+                            coeficiente,
+                            j + 1
+                        );
+                    }
 
                 } else {
 
                     if (coeficiente >= 0) {
-                        fprintf(problemaSimplexCompleto," + %dx%d",coeficiente,j + 1);
 
-                        fprintf(arquivoRestricoes," + %dx%d",coeficiente,j + 1);
+                        fprintf(
+                            problemaSimplexCompleto,
+                            " + %dx%d",
+                            coeficiente,
+                            j + 1
+                        );
+
+                        fprintf(
+                            arquivoRestricoes,
+                            " + %dx%d",
+                            coeficiente,
+                            j + 1
+                        );
 
                     } else {
-                        fprintf(problemaSimplexCompleto," - %dx%d",-coeficiente,j + 1);
 
-                        fprintf(arquivoRestricoes," - %dx%d",-coeficiente,j + 1);
+                        fprintf(
+                            problemaSimplexCompleto,
+                            " - %dx%d",
+                            -coeficiente,
+                            j + 1
+                        );
+
+                        fprintf(
+                            arquivoRestricoes,
+                            " - %dx%d",
+                            -coeficiente,
+                            j + 1
+                        );
                     }
                 }
             }
 
-            fprintf(problemaSimplexCompleto," <= %d\n", matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][numeroVariaveisDecisao]);
 
-            fprintf(arquivoRestricoes," <= %d\n",matrizdeCoeficienteseTermoIndependentesMaiorIgual[i][numeroVariaveisDecisao]);
+            fprintf(
+                problemaSimplexCompleto,
+                " <= %d\n",
+                matrizMenorIgual[i][numeroVariaveisDecisao]
+            );
+
+
+            fprintf(
+                arquivoRestricoes,
+                " <= %d\n",
+                matrizMenorIgual[i][numeroVariaveisDecisao]
+            );
+        }
+    }
+
+
+    // ============================================================
+    // RESTRIÇÕES DO TIPO =
+    // ============================================================
+
+    printf("\n");
+    printf("============================================\n");
+    printf("           RESTRICOES DO TIPO =\n");
+    printf("============================================\n");
+
+
+    printf(
+        "Digite a quantidade de restricoes do tipo =: "
+    );
+
+    scanf(
+        "%d",
+        &numeroRestricoesIgual
+    );
+
+
+    if (numeroRestricoesIgual < 0) {
+
+        printf("\nErro: quantidade invalida de restricoes.\n");
+
+        if (matrizMenorIgual != NULL) {
+
+            for (i = 0; i < numeroRestricoesMenorIgual; i++) {
+
+                free(matrizMenorIgual[i]);
+            }
+
+            free(matrizMenorIgual);
+        }
+
+        free(coeficienteFuncaoObjetivo);
+
+        fclose(arquivoRestricoes);
+        fclose(problemaSimplexCompleto);
+
+        return 1;
+    }
+
+
+    // ============================================================
+    // MATRIZ DAS RESTRIÇÕES =
+    // ============================================================
+
+    int **matrizIgual = NULL;
+
+
+    if (numeroRestricoesIgual > 0) {
+
+        matrizIgual =
+            malloc(
+                numeroRestricoesIgual *
+                sizeof(int *)
+            );
+
+
+        if (matrizIgual == NULL) {
+
+            printf("\nErro ao alocar matriz das restricoes =.\n");
+
+            if (matrizMenorIgual != NULL) {
+
+                for (i = 0; i < numeroRestricoesMenorIgual; i++) {
+
+                    free(matrizMenorIgual[i]);
+                }
+
+                free(matrizMenorIgual);
+            }
+
+            free(coeficienteFuncaoObjetivo);
+
+            fclose(arquivoRestricoes);
+            fclose(problemaSimplexCompleto);
+
+            return 1;
         }
 
 
-    //arquivoRestricoes = fopen("C:\\Users\\Dagoberto\\Desktop\\MetodoSimples\\tests\\gerarGraficos\\restricoes.txt", "w");
-   
-    //fprintf(arquivoRestricoes, "%dx1 + %dx2 ≤ 20\n",  coeficienteFuncaoObjetivo[0], coeficienteFuncaoObjetivo[1]);
-     //system("python -u  "); tentativa de chamar e executar arquivo python usando C
-    
+        // --------------------------------------------------------
+        // Aloca cada linha
+        // --------------------------------------------------------
+
+        for (i = 0; i < numeroRestricoesIgual; i++) {
+
+            matrizIgual[i] =
+                malloc(
+                    (numeroVariaveisDecisao + 1) *
+                    sizeof(int)
+                );
+
+
+            if (matrizIgual[i] == NULL) {
+
+                printf("\nErro ao alocar memoria para matriz =.\n");
+
+
+                for (j = 0; j < i; j++) {
+
+                    free(matrizIgual[j]);
+                }
+
+                free(matrizIgual);
+
+
+                if (matrizMenorIgual != NULL) {
+
+                    for (j = 0; j < numeroRestricoesMenorIgual; j++) {
+
+                        free(matrizMenorIgual[j]);
+                    }
+
+                    free(matrizMenorIgual);
+                }
+
+
+                free(coeficienteFuncaoObjetivo);
+
+                fclose(arquivoRestricoes);
+                fclose(problemaSimplexCompleto);
+
+                return 1;
+            }
+        }
+
+
+        // --------------------------------------------------------
+        // Preenche a matriz
+        // --------------------------------------------------------
+
+        for (i = 0; i < numeroRestricoesIgual; i++) {
+
+            printf("\n");
+            printf("Restricao = %d\n", i + 1);
+
+
+            for (j = 0; j < numeroVariaveisDecisao + 1; j++) {
+
+                if (j < numeroVariaveisDecisao) {
+
+                    printf(
+                        "Coeficiente de x%d: ",
+                        j + 1
+                    );
+
+                } else {
+
+                    printf(
+                        "Termo independente: "
+                    );
+                }
+
+
+                scanf(
+                    "%d",
+                    &matrizIgual[i][j]
+                );
+            }
+        }
+
+
+        // --------------------------------------------------------
+        // Salva as restrições =
+        // --------------------------------------------------------
+
+        for (i = 0; i < numeroRestricoesIgual; i++) {
+
+            for (j = 0; j < numeroVariaveisDecisao; j++) {
+
+                int coeficiente =
+                    matrizIgual[i][j];
+
+
+                if (j == 0) {
+
+                    if (coeficiente < 0) {
+
+                        fprintf(
+                            problemaSimplexCompleto,
+                            "- %dx%d",
+                            -coeficiente,
+                            j + 1
+                        );
+
+                        fprintf(
+                            arquivoRestricoes,
+                            "- %dx%d",
+                            -coeficiente,
+                            j + 1
+                        );
+
+                    } else {
+
+                        fprintf(
+                            problemaSimplexCompleto,
+                            "%dx%d",
+                            coeficiente,
+                            j + 1
+                        );
+
+                        fprintf(
+                            arquivoRestricoes,
+                            "%dx%d",
+                            coeficiente,
+                            j + 1
+                        );
+                    }
+
+                } else {
+
+                    if (coeficiente >= 0) {
+
+                        fprintf(
+                            problemaSimplexCompleto,
+                            " + %dx%d",
+                            coeficiente,
+                            j + 1
+                        );
+
+                        fprintf(
+                            arquivoRestricoes,
+                            " + %dx%d",
+                            coeficiente,
+                            j + 1
+                        );
+
+                    } else {
+
+                        fprintf(
+                            problemaSimplexCompleto,
+                            " - %dx%d",
+                            -coeficiente,
+                            j + 1
+                        );
+
+                        fprintf(
+                            arquivoRestricoes,
+                            " - %dx%d",
+                            -coeficiente,
+                            j + 1
+                        );
+                    }
+                }
+            }
+
+
+            fprintf(
+                problemaSimplexCompleto,
+                " = %d\n",
+                matrizIgual[i][numeroVariaveisDecisao]
+            );
+
+
+            fprintf(
+                arquivoRestricoes,
+                " = %d\n",
+                matrizIgual[i][numeroVariaveisDecisao]
+            );
+        }
+    }
+
+
+    // ============================================================
+// RESTRIÇÕES DO TIPO >=
+// ============================================================
+
+printf("\n");
+printf("============================================\n");
+printf("          RESTRICOES DO TIPO >=\n");
+printf("============================================\n");
+
+
+printf(
+    "Digite a quantidade de restricoes do tipo >=: "
+);
+
+scanf(
+    "%d",
+    &numeroRestricoesMaiorIgual
+);
+
+
+// ============================================================
+// VALIDAÇÃO DA QUANTIDADE
+// ============================================================
+
+if (numeroRestricoesMaiorIgual < 0) {
+
+    printf(
+        "\nErro: quantidade invalida de restricoes.\n"
+    );
+
+    free(coeficienteFuncaoObjetivo);
+
     fclose(arquivoRestricoes);
     fclose(problemaSimplexCompleto);
+
+    return 1;
+}
+
+
+// ============================================================
+// MATRIZ DAS RESTRIÇÕES >=
+//
+// Cada linha possui:
+//
+// x1 | x2 | x3 | ... | xn | termo independente
+//
+// Exemplo:
+//
+// 2 | 3 | 20
+//
+// representa:
+//
+// 2x1 + 3x2 >= 20
+// ============================================================
+
+int **matrizMaiorIgual = NULL;
+
+
+if (numeroRestricoesMaiorIgual > 0) {
+
+    // --------------------------------------------------------
+    // Aloca o vetor de ponteiros
+    // --------------------------------------------------------
+
+    matrizMaiorIgual =
+        malloc(
+            numeroRestricoesMaiorIgual *
+            sizeof(int *)
+        );
+
+
+    if (matrizMaiorIgual == NULL) {
+
+        printf(
+            "\nErro ao alocar matriz das restricoes >=.\n"
+        );
+
+        free(coeficienteFuncaoObjetivo);
+
+        fclose(arquivoRestricoes);
+        fclose(problemaSimplexCompleto);
+
+        return 1;
+    }
+
+
+    // --------------------------------------------------------
+    // Aloca cada linha da matriz
+    // --------------------------------------------------------
+
+    for (i = 0; i < numeroRestricoesMaiorIgual; i++) {
+
+        matrizMaiorIgual[i] =
+            malloc(
+                (numeroVariaveisDecisao + 1) *
+                sizeof(int)
+            );
+
+
+        if (matrizMaiorIgual[i] == NULL) {
+
+            printf(
+                "\nErro ao alocar memoria para a matriz >=.\n"
+            );
+
+
+            // Libera as linhas que já foram alocadas
+            for (j = 0; j < i; j++) {
+
+                free(matrizMaiorIgual[j]);
+            }
+
+
+            free(matrizMaiorIgual);
+
+            free(coeficienteFuncaoObjetivo);
+
+            fclose(arquivoRestricoes);
+            fclose(problemaSimplexCompleto);
+
+            return 1;
+        }
+    }
+
+
+    // ========================================================
+    // PREENCHE A MATRIZ
+    // ========================================================
+
+    for (i = 0; i < numeroRestricoesMaiorIgual; i++) {
+
+        printf("\n");
+        printf(
+            "Restricao >= %d\n",
+            i + 1
+        );
+
+
+        for (j = 0; j < numeroVariaveisDecisao + 1; j++) {
+
+            if (j < numeroVariaveisDecisao) {
+
+                printf(
+                    "Coeficiente de x%d: ",
+                    j + 1
+                );
+
+            } else {
+
+                printf(
+                    "Termo independente: "
+                );
+            }
+
+
+            scanf(
+                "%d",
+                &matrizMaiorIgual[i][j]
+            );
+        }
+    }
+
+
+    // ========================================================
+    // SALVA AS RESTRIÇÕES >=
+    // ========================================================
+
+    for (i = 0; i < numeroRestricoesMaiorIgual; i++) {
+
+        for (j = 0; j < numeroVariaveisDecisao; j++) {
+
+            int coeficiente =
+                matrizMaiorIgual[i][j];
+
+
+            // ------------------------------------------------
+            // PRIMEIRO COEFICIENTE
+            // ------------------------------------------------
+
+            if (j == 0) {
+
+                if (coeficiente < 0) {
+
+                    fprintf(
+                        problemaSimplexCompleto,
+                        "- %dx%d",
+                        -coeficiente,
+                        j + 1
+                    );
+
+                    fprintf(
+                        arquivoRestricoes,
+                        "- %dx%d",
+                        -coeficiente,
+                        j + 1
+                    );
+
+                } else {
+
+                    fprintf(
+                        problemaSimplexCompleto,
+                        "%dx%d",
+                        coeficiente,
+                        j + 1
+                    );
+
+                    fprintf(
+                        arquivoRestricoes,
+                        "%dx%d",
+                        coeficiente,
+                        j + 1
+                    );
+                }
+
+            }
+
+            // ------------------------------------------------
+            // DEMAIS COEFICIENTES
+            // ------------------------------------------------
+
+            else {
+
+                if (coeficiente >= 0) {
+
+                    fprintf(
+                        problemaSimplexCompleto,
+                        " + %dx%d",
+                        coeficiente,
+                        j + 1
+                    );
+
+                    fprintf(
+                        arquivoRestricoes,
+                        " + %dx%d",
+                        coeficiente,
+                        j + 1
+                    );
+
+                } else {
+
+                    fprintf(
+                        problemaSimplexCompleto,
+                        " - %dx%d",
+                        -coeficiente,
+                        j + 1
+                    );
+
+                    fprintf(
+                        arquivoRestricoes,
+                        " - %dx%d",
+                        -coeficiente,
+                        j + 1
+                    );
+                }
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // TERMO INDEPENDENTE
+        // ----------------------------------------------------
+
+        fprintf(
+            problemaSimplexCompleto,
+            " >= %d\n",
+            matrizMaiorIgual[i][numeroVariaveisDecisao]
+        );
+
+
+        fprintf(
+            arquivoRestricoes,
+            " >= %d\n",
+            matrizMaiorIgual[i][numeroVariaveisDecisao]
+        );
+    }
+}
+
+
+    // ============================================================
+    // FECHANDO OS ARQUIVOS
+    //
+    // IMPORTANTE:
+    // Os arquivos só são fechados aqui, depois de todas
+    // as operações de escrita.
+    // ============================================================
+
+    fclose(arquivoRestricoes);
+
+    fclose(problemaSimplexCompleto);
+
+
+    // ============================================================
+    // LIBERANDO A MEMÓRIA DA FUNÇÃO OBJETIVO
+    // ============================================================
+
+    free(coeficienteFuncaoObjetivo);
+
+
+    // ============================================================
+    // LIBERANDO A MEMÓRIA DA MATRIZ <=
+    // ============================================================
+
+    if (matrizMenorIgual != NULL) {
+
+        for (i = 0; i < numeroRestricoesMenorIgual; i++) {
+
+            free(matrizMenorIgual[i]);
+        }
+
+        free(matrizMenorIgual);
+    }
+
+
+    // ============================================================
+    // LIBERANDO A MEMÓRIA DA MATRIZ =
+    // ============================================================
+
+    if (matrizIgual != NULL) {
+
+        for (i = 0; i < numeroRestricoesIgual; i++) {
+
+            free(matrizIgual[i]);
+        }
+
+        free(matrizIgual);
+    }
+
+    
+    // ============================================================
+    // LIBERANDO A MEMÓRIA DA MATRIZ >=
+    // ============================================================
+
+    if (matrizMaiorIgual != NULL) {
+
+        for (i = 0; i < numeroRestricoesMaiorIgual; i++) {
+
+            free(matrizMaiorIgual[i]);
+        }
+
+        free(matrizMaiorIgual);
+    }
+
+    // ============================================================
+    // FINALIZAÇÃO
+    // ============================================================
+
+    printf("\n");
+    printf("============================================\n");
+    printf("     PROBLEMA SIMPLEX GERADO COM SUCESSO\n");
+    printf("============================================\n");
+
+    printf("\nArquivo do problema:\n");
+    printf("%s\n", caminhoProblema);
+
+    printf("\nArquivo das restricoes:\n");
+    printf("%s\n", caminhoRestricoes);
+
+    printf("\n");
+
+
     return 0;
 }
