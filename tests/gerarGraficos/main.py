@@ -50,6 +50,8 @@ with open(caminho, "r", encoding="utf-8") as arquivo:
 # x1 + 3x2 <= 20
 # 2x1 - x2 >= 10
 # 3x1 + 2x2 = 15
+# 1x1 + 0x2 <= 4
+# 0x1 + 1x2 <= 6
 # ------------------------------------------------
 
 padrao_duas_variaveis = (
@@ -148,6 +150,7 @@ for linha in linhas:
         .replace("≤", "<=")
         .replace("≥", ">=")
     )
+
 
     # ==========================================
     # 8. VERIFICAR x1 >= 0
@@ -329,7 +332,7 @@ plt.figure(figsize=(10, 7))
 
 
 # ==========================================
-# 18. DESENHAR RESTRIÇÕES NORMAIS
+# 18. DESENHAR RESTRIÇÕES
 # ==========================================
 
 for restricao in restricoes:
@@ -340,56 +343,99 @@ for restricao in restricoes:
     texto = restricao["texto"]
 
 
-    # --------------------------------------
-    # Verificar divisão por zero
-    # --------------------------------------
+    # ======================================
+    # CASO 1:
+    # b == 0
+    #
+    # Exemplo:
+    # 1x1 + 0x2 <= 4
+    #
+    # Isso significa:
+    #
+    # x1 = 4
+    #
+    # Portanto é uma reta VERTICAL.
+    # ======================================
 
     if b == 0:
 
+        if a == 0:
+
+            print(
+                f"\nNão é possível desenhar {texto}: "
+                "coeficientes de x1 e x2 são zero."
+            )
+
+            continue
+
+
+        # Calcula x1 = c/a
+        x1_valor = c / a
+
+        # Valores de x2 para desenhar a reta
+        x2 = list(range(0, 31))
+
+        # x1 permanece constante
+        x1 = [x1_valor] * len(x2)
+
+
         print(
-            f"\nNão é possível desenhar {texto}: "
-            "coeficiente de x2 é zero."
+            f"\n✓ Desenhando restrição vertical: "
+            f"x1 = {x1_valor}"
         )
 
-        continue
+
+        plt.plot(
+            x1,
+            x2,
+            linewidth=2,
+            label=texto
+        )
 
 
-    # --------------------------------------
-    # Gerar valores de x1
-    # --------------------------------------
-
-    x1 = list(range(0, 31))
-
-
-    # --------------------------------------
-    # Calcular x2
+    # ======================================
+    # CASO 2:
+    # b != 0
     #
-    # ax1 + bx2 = c
+    # Exemplo:
     #
-    # bx2 = c - ax1
+    # 3x1 + 2x2 <= 18
     #
-    # x2 = (c - ax1) / b
-    # --------------------------------------
+    # x2 = (18 - 3x1) / 2
+    # ======================================
 
-    x2 = []
+    else:
 
-    for valor_x1 in x1:
+        # Gerar valores de x1
+        x1 = list(range(0, 31))
 
-        valor_x2 = (c - a * valor_x1) / b
+        # Lista para armazenar x2
+        x2 = []
 
-        x2.append(valor_x2)
+
+        # Calcular x2
+        for valor_x1 in x1:
+
+            valor_x2 = (
+                c - a * valor_x1
+            ) / b
+
+            x2.append(valor_x2)
 
 
-    # --------------------------------------
-    # Desenhar reta
-    # --------------------------------------
+        print(
+            f"\n✓ Desenhando restrição:"
+            f" {texto}"
+        )
 
-    plt.plot(
-        x1,
-        x2,
-        linewidth=2,
-        label=texto
-    )
+
+        # Desenhar reta
+        plt.plot(
+            x1,
+            x2,
+            linewidth=2,
+            label=texto
+        )
 
 
 # ==========================================
@@ -400,7 +446,6 @@ if nao_negatividade_x1:
 
     # x1 = 0
     #
-    # No gráfico:
     # x1 corresponde ao eixo horizontal
     # x2 corresponde ao eixo vertical
     #
@@ -409,6 +454,7 @@ if nao_negatividade_x1:
     x2_eixo = list(range(0, 31))
 
     x1_eixo = [0] * len(x2_eixo)
+
 
     plt.plot(
         x1_eixo,
@@ -432,6 +478,7 @@ if nao_negatividade_x2:
     x1_eixo = list(range(0, 31))
 
     x2_eixo = [0] * len(x1_eixo)
+
 
     plt.plot(
         x1_eixo,
@@ -484,9 +531,11 @@ plt.axvline(
 # ==========================================
 
 plt.xlim(0, 30)
+
 plt.ylim(0, 30)
 
 plt.xlabel("x1")
+
 plt.ylabel("x2")
 
 plt.title(

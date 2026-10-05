@@ -983,12 +983,124 @@ if (numeroRestricoesMaiorIgual > 0) {
 }
 
 
-    for (i = 0; i < numeroVariaveisDecisao; i++)
-    {
-       fprintf(problemaSimplexCompleto, "x%d >= 0\n", i+1);
-       fprintf(arquivoRestricoes, "x%d >= 0\n", i+1);
-    }
+  // ============================================================
+// NÃO NEGATIVIDADE DAS VARIÁVEIS
+// ============================================================
+
+// Gera x1 >= 0, x2 >= 0, ..., xn >= 0
+for (i = 0; i < numeroVariaveisDecisao; i++)
+{
+    // Grava a não negatividade no arquivo completo
+    fprintf(problemaSimplexCompleto, "x%d >= 0\n", i + 1);
+
+    // Grava a não negatividade no arquivo de restrições
+    fprintf(arquivoRestricoes, "x%d >= 0\n", i + 1);
+}
     
+
+// ============================================================
+// IMPRESSÃO FINAL DO PROBLEMA
+// ============================================================
+
+printf("\n");
+printf("============================================\n");
+printf("          PROBLEMA DE PROGRAMACAO LINEAR\n");
+printf("============================================\n\n");
+
+printf("z = ");
+
+for (i = 0; i < numeroVariaveisDecisao; i++)
+{
+    if (i > 0)
+    {
+        printf(" + ");
+    }
+
+    printf("%dx%d", coeficienteFuncaoObjetivo[i], i + 1);
+}
+
+printf("\n");
+
+// Imprime as restrições do tipo <=
+for (i = 0; i < numeroRestricoesMenorIgual; i++)
+{
+    for (j = 0; j < numeroVariaveisDecisao; j++)
+    {
+        if (j > 0)
+        {
+            printf(" + ");
+        }
+
+        printf(
+            "%dx%d",
+            matrizMenorIgual[i][j],
+            j + 1
+        );
+    }
+
+    printf(
+        " <= %d\n",
+        matrizMenorIgual[i][numeroVariaveisDecisao]
+    );
+}
+
+
+// Imprime as restrições do tipo >=
+for (i = 0; i < numeroRestricoesMaiorIgual; i++)
+{
+    for (j = 0; j < numeroVariaveisDecisao; j++)
+    {
+        if (j > 0)
+        {
+            printf(" + ");
+        }
+
+        printf(
+            "%dx%d",
+            matrizMaiorIgual[i][j],
+            j + 1
+        );
+    }
+
+    printf(
+        " >= %d\n",
+        matrizMaiorIgual[i][numeroVariaveisDecisao]
+    );
+}
+
+
+// Imprime as restrições do tipo =
+for (i = 0; i < numeroRestricoesIgual; i++)
+{
+    for (j = 0; j < numeroVariaveisDecisao; j++)
+    {
+        if (j > 0)
+        {
+            printf(" + ");
+        }
+
+        printf(
+            "%dx%d",
+            matrizIgual[i][j],
+            j + 1
+        );
+    }
+
+    printf(
+        " = %d\n",
+        matrizIgual[i][numeroVariaveisDecisao]
+    );
+}
+
+
+// Imprime as condições de não negatividade
+for (i = 0; i < numeroVariaveisDecisao; i++)
+{
+    printf("x%d >= 0\n", i + 1);
+}
+
+printf("\n");
+printf("============================================\n");
 
     // ============================================================
     // FECHANDO OS ARQUIVOS
