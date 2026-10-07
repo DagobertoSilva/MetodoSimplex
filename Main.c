@@ -94,10 +94,10 @@ int main() {
     // ALOCAÇÃO DA FUNÇÃO OBJETIVO
     // ============================================================
 
-    int *coeficienteFuncaoObjetivo;
+    double *coeficienteFuncaoObjetivo;
 
     coeficienteFuncaoObjetivo =
-        malloc(numeroVariaveisDecisao * sizeof(int));
+        malloc(numeroVariaveisDecisao * sizeof(double));
 
 
     if (coeficienteFuncaoObjetivo == NULL) {
@@ -129,7 +129,7 @@ int main() {
         );
 
         scanf(
-            "%d",
+            "%lf",
             &coeficienteFuncaoObjetivo[i]
         );
     }
@@ -147,7 +147,7 @@ int main() {
 
     for (i = 0; i < numeroVariaveisDecisao; i++) {
 
-        int coeficiente =
+        double coeficiente =
             coeficienteFuncaoObjetivo[i];
 
 
@@ -157,7 +157,7 @@ int main() {
 
                 fprintf(
                     problemaSimplexCompleto,
-                    "- %dx%d",
+                    "- %.2lfx%d",
                     -coeficiente,
                     i + 1
                 );
@@ -166,7 +166,7 @@ int main() {
 
                 fprintf(
                     problemaSimplexCompleto,
-                    "%dx%d",
+                    "%.2lfx%d",
                     coeficiente,
                     i + 1
                 );
@@ -178,7 +178,7 @@ int main() {
 
                 fprintf(
                     problemaSimplexCompleto,
-                    " + %dx%d",
+                    " + %.2lfx%d",
                     coeficiente,
                     i + 1
                 );
@@ -187,7 +187,7 @@ int main() {
 
                 fprintf(
                     problemaSimplexCompleto,
-                    " - %dx%d",
+                    " - %.2lfx%d",
                     -coeficiente,
                     i + 1
                 );
@@ -244,7 +244,7 @@ int main() {
     //
     // ============================================================
 
-    int **matrizMenorIgual = NULL;
+    double **matrizMenorIgual = NULL;
 
 
     if (numeroRestricoesMenorIgual > 0) {
@@ -252,7 +252,7 @@ int main() {
         matrizMenorIgual =
             malloc(
                 numeroRestricoesMenorIgual *
-                sizeof(int *)
+                sizeof(double *)
             );
 
 
@@ -278,7 +278,7 @@ int main() {
             matrizMenorIgual[i] =
                 malloc(
                     (numeroVariaveisDecisao + 1) *
-                    sizeof(int)
+                    sizeof(double)
                 );
 
 
@@ -332,7 +332,7 @@ int main() {
 
 
                 scanf(
-                    "%d",
+                    "%lf",
                     &matrizMenorIgual[i][j]
                 );
             }
@@ -347,7 +347,7 @@ int main() {
 
             for (j = 0; j < numeroVariaveisDecisao; j++) {
 
-                int coeficiente =
+                double coeficiente =
                     matrizMenorIgual[i][j];
 
 
@@ -357,14 +357,14 @@ int main() {
 
                         fprintf(
                             problemaSimplexCompleto,
-                            "- %dx%d",
+                            "- %.2lfx%d",
                             -coeficiente,
                             j + 1
                         );
 
                         fprintf(
                             arquivoRestricoes,
-                            "- %dx%d",
+                            "- %.2lfx%d",
                             -coeficiente,
                             j + 1
                         );
@@ -373,14 +373,14 @@ int main() {
 
                         fprintf(
                             problemaSimplexCompleto,
-                            "%dx%d",
+                            "%.2lfx%d",
                             coeficiente,
                             j + 1
                         );
 
                         fprintf(
                             arquivoRestricoes,
-                            "%dx%d",
+                            "%.2lfx%d",
                             coeficiente,
                             j + 1
                         );
@@ -392,14 +392,14 @@ int main() {
 
                         fprintf(
                             problemaSimplexCompleto,
-                            " + %dx%d",
+                            " + %.2lfx%d",
                             coeficiente,
                             j + 1
                         );
 
                         fprintf(
                             arquivoRestricoes,
-                            " + %dx%d",
+                            " + %.2lfx%d",
                             coeficiente,
                             j + 1
                         );
@@ -408,14 +408,14 @@ int main() {
 
                         fprintf(
                             problemaSimplexCompleto,
-                            " - %dx%d",
+                            " - %.2lfx%d",
                             -coeficiente,
                             j + 1
                         );
 
                         fprintf(
                             arquivoRestricoes,
-                            " - %dx%d",
+                            " - %.2lfx%d",
                             -coeficiente,
                             j + 1
                         );
@@ -426,14 +426,14 @@ int main() {
 
             fprintf(
                 problemaSimplexCompleto,
-                " <= %d\n",
+                " <= %.2lf\n",
                 matrizMenorIgual[i][numeroVariaveisDecisao]
             );
 
 
             fprintf(
                 arquivoRestricoes,
-                " <= %d\n",
+                " <= %.2lf\n",
                 matrizMenorIgual[i][numeroVariaveisDecisao]
             );
         }
@@ -487,7 +487,7 @@ int main() {
     // MATRIZ DAS RESTRIÇÕES =
     // ============================================================
 
-    int **matrizIgual = NULL;
+    double **matrizIgual = NULL;
 
 
     if (numeroRestricoesIgual > 0) {
@@ -495,7 +495,7 @@ int main() {
         matrizIgual =
             malloc(
                 numeroRestricoesIgual *
-                sizeof(int *)
+                sizeof(double *)
             );
 
 
@@ -531,7 +531,7 @@ int main() {
             matrizIgual[i] =
                 malloc(
                     (numeroVariaveisDecisao + 1) *
-                    sizeof(int)
+                    sizeof(double)
                 );
 
 
@@ -597,7 +597,7 @@ int main() {
 
 
                 scanf(
-                    "%d",
+                    "%lf",
                     &matrizIgual[i][j]
                 );
             }
@@ -612,7 +612,7 @@ int main() {
 
             for (j = 0; j < numeroVariaveisDecisao; j++) {
 
-                int coeficiente =
+                double coeficiente =
                     matrizIgual[i][j];
 
 
@@ -622,14 +622,14 @@ int main() {
 
                         fprintf(
                             problemaSimplexCompleto,
-                            "- %dx%d",
+                            "- %.2lfx%d",
                             -coeficiente,
                             j + 1
                         );
 
                         fprintf(
                             arquivoRestricoes,
-                            "- %dx%d",
+                            "- %.2lfx%d",
                             -coeficiente,
                             j + 1
                         );
@@ -638,14 +638,14 @@ int main() {
 
                         fprintf(
                             problemaSimplexCompleto,
-                            "%dx%d",
+                            "%.2lfx%d",
                             coeficiente,
                             j + 1
                         );
 
                         fprintf(
                             arquivoRestricoes,
-                            "%dx%d",
+                            "%.2lfx%d",
                             coeficiente,
                             j + 1
                         );
@@ -657,14 +657,14 @@ int main() {
 
                         fprintf(
                             problemaSimplexCompleto,
-                            " + %dx%d",
+                            " + %.2lfx%d",
                             coeficiente,
                             j + 1
                         );
 
                         fprintf(
                             arquivoRestricoes,
-                            " + %dx%d",
+                            " + %.2lfx%d",
                             coeficiente,
                             j + 1
                         );
@@ -673,14 +673,14 @@ int main() {
 
                         fprintf(
                             problemaSimplexCompleto,
-                            " - %dx%d",
+                            " - %.2lfx%d",
                             -coeficiente,
                             j + 1
                         );
 
                         fprintf(
                             arquivoRestricoes,
-                            " - %dx%d",
+                            " - %.2lfx%d",
                             -coeficiente,
                             j + 1
                         );
@@ -691,14 +691,14 @@ int main() {
 
             fprintf(
                 problemaSimplexCompleto,
-                " = %d\n",
+                " = %.2lf\n",
                 matrizIgual[i][numeroVariaveisDecisao]
             );
 
 
             fprintf(
                 arquivoRestricoes,
-                " = %d\n",
+                " = %.2lf\n",
                 matrizIgual[i][numeroVariaveisDecisao]
             );
         }
@@ -760,7 +760,7 @@ if (numeroRestricoesMaiorIgual < 0) {
 // 2x1 + 3x2 >= 20
 // ============================================================
 
-int **matrizMaiorIgual = NULL;
+double **matrizMaiorIgual = NULL;
 
 
 if (numeroRestricoesMaiorIgual > 0) {
@@ -772,7 +772,7 @@ if (numeroRestricoesMaiorIgual > 0) {
     matrizMaiorIgual =
         malloc(
             numeroRestricoesMaiorIgual *
-            sizeof(int *)
+            sizeof(double *)
         );
 
 
@@ -800,7 +800,7 @@ if (numeroRestricoesMaiorIgual > 0) {
         matrizMaiorIgual[i] =
             malloc(
                 (numeroVariaveisDecisao + 1) *
-                sizeof(int)
+                sizeof(double)
             );
 
 
@@ -861,7 +861,7 @@ if (numeroRestricoesMaiorIgual > 0) {
 
 
             scanf(
-                "%d",
+                "%lf",
                 &matrizMaiorIgual[i][j]
             );
         }
@@ -876,7 +876,7 @@ if (numeroRestricoesMaiorIgual > 0) {
 
         for (j = 0; j < numeroVariaveisDecisao; j++) {
 
-            int coeficiente =
+            double coeficiente =
                 matrizMaiorIgual[i][j];
 
 
@@ -890,14 +890,14 @@ if (numeroRestricoesMaiorIgual > 0) {
 
                     fprintf(
                         problemaSimplexCompleto,
-                        "- %dx%d",
+                        "- %.2lfx%d",
                         -coeficiente,
                         j + 1
                     );
 
                     fprintf(
                         arquivoRestricoes,
-                        "- %dx%d",
+                        "- %.2lfx%d",
                         -coeficiente,
                         j + 1
                     );
@@ -906,14 +906,14 @@ if (numeroRestricoesMaiorIgual > 0) {
 
                     fprintf(
                         problemaSimplexCompleto,
-                        "%dx%d",
+                        "%.2lfx%d",
                         coeficiente,
                         j + 1
                     );
 
                     fprintf(
                         arquivoRestricoes,
-                        "%dx%d",
+                        "%.2lfx%d",
                         coeficiente,
                         j + 1
                     );
@@ -931,14 +931,14 @@ if (numeroRestricoesMaiorIgual > 0) {
 
                     fprintf(
                         problemaSimplexCompleto,
-                        " + %dx%d",
+                        " + %.2lfx%d",
                         coeficiente,
                         j + 1
                     );
 
                     fprintf(
                         arquivoRestricoes,
-                        " + %dx%d",
+                        " + %.2lfx%d",
                         coeficiente,
                         j + 1
                     );
@@ -947,14 +947,14 @@ if (numeroRestricoesMaiorIgual > 0) {
 
                     fprintf(
                         problemaSimplexCompleto,
-                        " - %dx%d",
+                        " - %.2lfx%d",
                         -coeficiente,
                         j + 1
                     );
 
                     fprintf(
                         arquivoRestricoes,
-                        " - %dx%d",
+                        " - %.2lfx%d",
                         -coeficiente,
                         j + 1
                     );
@@ -969,14 +969,14 @@ if (numeroRestricoesMaiorIgual > 0) {
 
         fprintf(
             problemaSimplexCompleto,
-            " >= %d\n",
+            " >= %.2lf\n",
             matrizMaiorIgual[i][numeroVariaveisDecisao]
         );
 
 
         fprintf(
             arquivoRestricoes,
-            " >= %d\n",
+            " >= %.2lf\n",
             matrizMaiorIgual[i][numeroVariaveisDecisao]
         );
     }
@@ -1016,7 +1016,7 @@ for (i = 0; i < numeroVariaveisDecisao; i++)
         printf(" + ");
     }
 
-    printf("%dx%d", coeficienteFuncaoObjetivo[i], i + 1);
+    printf("%.2lfx%d", coeficienteFuncaoObjetivo[i], i + 1);
 }
 
 printf("\n");
@@ -1032,14 +1032,14 @@ for (i = 0; i < numeroRestricoesMenorIgual; i++)
         }
 
         printf(
-            "%dx%d",
+            "%.2lfx%d",
             matrizMenorIgual[i][j],
             j + 1
         );
     }
 
     printf(
-        " <= %d\n",
+        " <= %.2lf\n",
         matrizMenorIgual[i][numeroVariaveisDecisao]
     );
 }
@@ -1056,14 +1056,14 @@ for (i = 0; i < numeroRestricoesMaiorIgual; i++)
         }
 
         printf(
-            "%dx%d",
+            "%.2lfx%d",
             matrizMaiorIgual[i][j],
             j + 1
         );
     }
 
     printf(
-        " >= %d\n",
+        " >= %.2lf\n",
         matrizMaiorIgual[i][numeroVariaveisDecisao]
     );
 }
@@ -1080,14 +1080,14 @@ for (i = 0; i < numeroRestricoesIgual; i++)
         }
 
         printf(
-            "%dx%d",
+            "%.2lfx%d",
             matrizIgual[i][j],
             j + 1
         );
     }
 
     printf(
-        " = %d\n",
+        " = %.2lf\n",
         matrizIgual[i][numeroVariaveisDecisao]
     );
 }
