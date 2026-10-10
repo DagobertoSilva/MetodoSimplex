@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 int main() {
@@ -1098,6 +1099,111 @@ for (i = 0; i < numeroVariaveisDecisao; i++)
 {
     printf("x%d >= 0\n", i + 1);
 }
+
+
+//-------------------------------------deixando  as restrições na forma padrão----------------------------------
+ FILE *arquivoEntrada;
+    FILE *arquivoSaida;
+
+    char linha[500];
+    int numeroVariavelFolga = 0;
+
+    const char *caminhoEntrada =
+        "C:\\Users\\Dagoberto\\Desktop\\MetodoSimplex\\problemaSimplex.txt";
+
+    const char *caminhoSaida =
+        "C:\\Users\\Dagoberto\\Desktop\\MetodoSimplex\\problemaSimplexNaFormaPadrao.txt";
+
+    // Abre o arquivo original para leitura
+    arquivoEntrada = fopen(caminhoEntrada, "r");
+
+    if (arquivoEntrada == NULL) {
+        printf("Erro ao abrir o arquivo de entrada.\n");
+        return 1;
+    }
+
+    // Cria o arquivo que recebera as restricoes transformadas
+    arquivoSaida = fopen(caminhoSaida, "w");
+
+    if (arquivoSaida == NULL) {
+        printf("Erro ao criar o arquivo de saida.\n");
+        fclose(arquivoEntrada);
+        return 1;
+    }
+
+    // Percorre todas as linhas do arquivo original
+    while (fgets(linha, sizeof(linha), arquivoEntrada) != NULL) {
+        char *operador = strstr(linha, "<=");
+
+        // Verifica se a linha possui o operador <=
+        if (operador != NULL) {
+            char ladoEsquerdo[400];
+            char ladoDireito[400];
+
+            // Copia a parte anterior ao operador
+            size_t tamanhoEsquerdo = (size_t)(operador - linha);
+
+            if (tamanhoEsquerdo >= sizeof(ladoEsquerdo)) {
+                printf("Restricao muito grande.\n");
+                fclose(arquivoEntrada);
+                fclose(arquivoSaida);
+                return 1;
+            }
+
+            memcpy(ladoEsquerdo, linha, tamanhoEsquerdo);
+            ladoEsquerdo[tamanhoEsquerdo] = '\0';
+
+            // Remove os espacos do final do lado esquerdo
+            while (tamanhoEsquerdo > 0 &&
+                   ladoEsquerdo[tamanhoEsquerdo - 1] == ' ') {
+                ladoEsquerdo[--tamanhoEsquerdo] = '\0';
+            }
+
+            // Copia a parte posterior ao operador <=
+            snprintf(
+                ladoDireito,
+                sizeof(ladoDireito),
+                "%s",
+                operador + 2
+            );
+
+            // Remove os espacos do inicio do lado direito
+            char *inicioDireito = ladoDireito;
+
+            while (*inicioDireito == ' ' ||
+                   *inicioDireito == '\t') {
+                inicioDireito++;
+            }
+
+            // Remove a quebra de linha para reconstruir a restricao
+            inicioDireito[strcspn(inicioDireito, "\r\n")] = '\0';
+
+            // Adiciona uma variavel de folga e transforma <= em =
+            numeroVariavelFolga++;
+
+            fprintf(
+                arquivoSaida,
+                "%s + vf%d = %s\n",
+                ladoEsquerdo,
+                numeroVariavelFolga,
+                inicioDireito
+            );
+
+        } else {
+            // Mantem as linhas que nao possuem <=
+            fputs(linha, arquivoSaida);
+        }
+    }
+
+  
+
+    printf("Transformacao concluida com sucesso!\n");
+    printf("Restricoes transformadas: %d\n", numeroVariavelFolga);
+    printf("Arquivo gerado:\n%s\n", caminhoSaida);
+
+
+
+
 
 printf("\n");
 printf("============================================\n");
