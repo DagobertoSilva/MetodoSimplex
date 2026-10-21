@@ -2,6 +2,97 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define TAM_ENTRADA 1024
+#define TAM_SAIDA 4096
+#define TAM_SUBSTITUTO 50
+
+/*
+    Substitui todas as ocorrencias de um operador por um texto numerado.
+    Exemplo: "<=" -> " + F1 = " e ">=" -> " - E1 = ".
+    Retorna 1 em caso de sucesso e 0 se ocorrer erro/faltar espaco.
+*/
+int substituirTodas(
+    const char entrada[],
+    const char procurar[],
+    const char formatoSubstituto[],
+    char saida[],
+    size_t capacidade,
+    int *contador
+) {
+    if (procurar[0] == '\0' || capacidade == 0) {
+        return 0;
+    }
+
+    const char *atual = entrada;
+    size_t usados = 0;
+    size_t tamanhoProcurar = strlen(procurar);
+    saida[0] = '\0';
+
+    while (*atual != '\0') {
+        const char *posicao = strstr(atual, procurar);
+
+        if (posicao == NULL) {
+            size_t restante = strlen(atual);
+            if (restante >= capacidade - usados) {
+                return 0;
+            }
+            memcpy(saida + usados, atual, restante);
+            usados += restante;
+            saida[usados] = '\0';
+            return 1;
+        }
+
+        size_t trecho = (size_t)(posicao - atual);
+        if (trecho >= capacidade - usados) {
+            return 0;
+        }
+        memcpy(saida + usados, atual, trecho);
+        usados += trecho;
+        saida[usados] = '\0';
+
+        char substituto[TAM_SUBSTITUTO];
+        int tamanhoSubstituto = snprintf(
+            substituto,
+            sizeof(substituto),
+            formatoSubstituto,
+            *contador
+        );
+
+        if (tamanhoSubstituto < 0 ||
+            (size_t)tamanhoSubstituto >= sizeof(substituto)) {
+            return 0;
+        }
+
+        if ((size_t)tamanhoSubstituto >= capacidade - usados) {
+            return 0;
+        }
+        memcpy(saida + usados, substituto, (size_t)tamanhoSubstituto);
+        usados += (size_t)tamanhoSubstituto;
+        saida[usados] = '\0';
+
+        (*contador)++;
+        atual = posicao + tamanhoProcurar;
+    }
+
+    return 1;
+}
+
+/*
+    Identifica linhas de nao negatividade como "x1 >= 0".
+    Essas linhas devem permanecer inalteradas; caso contrario, seriam
+    incorretamente transformadas em "x1 - E1 = 0".
+*/
+int ehRestricaoNaoNegatividade(const char linha[]) {
+    const char *inicio = linha;
+
+    while (*inicio == ' ' || *inicio == '\t') {
+        inicio++;
+    }
+
+    return inicio[0] == 'x' &&
+           inicio[1] >= '0' && inicio[1] <= '9';
+}
+
 int main() {
 
     // ============================================================
@@ -1101,124 +1192,125 @@ for (i = 0; i < numeroVariaveisDecisao; i++)
 }
 
 
-//-------------------------------------deixando  as restrições na forma padrão----------------------------------
- FILE *arquivoEntrada;
-    FILE *arquivoSaida;
+// ============================================================
+// FECHANDO OS ARQUIVOS DO PROBLEMA ORIGINAL
+// ============================================================
+// IMPORTANTE: problemaSimplex.txt precisa ser totalmente gravado
+// e fechado antes de ser aberto para leitura na etapa seguinte.
 
-    char linha[500];
-    int numeroVariavelFolga = 0;
+if (fclose(arquivoRestricoes) == EOF) {
+    printf("Erro ao fechar restricoes.txt.\n");
+    fclose(problemaSimplexCompleto);
+    free(coeficienteFuncaoObjetivo);
+    return 1;
+}
 
-    const char *caminhoEntrada =
-        "C:\\Users\\Dagoberto\\Desktop\\MetodoSimplex\\problemaSimplex.txt";
+if (fclose(problemaSimplexCompleto) == EOF) {
+    printf("Erro ao fechar problemaSimplex.txt.\n");
+    free(coeficienteFuncaoObjetivo);
+    return 1;
+}
 
-    const char *caminhoSaida =
-        "C:\\Users\\Dagoberto\\Desktop\\MetodoSimplex\\problemaSimplexNaFormaPadrao.txt";
+// ============================================================
+// TRANSFORMANDO AS RESTRICOES PARA A FORMA PADRAO
+// ============================================================
+// <= vira + F1 =, + F2 =, ... (variaveis de folga)
+// >= vira - E1 =, - E2 =, ... (variaveis de excesso)
+// = permanece inalterado.
+// As linhas x1 >= 0, x2 >= 0, ... sao mantidas sem alteracao.
 
-    // Abre o arquivo original para leitura
-    arquivoEntrada = fopen(caminhoEntrada, "r");
+FILE *arquivoEntrada;
+FILE *arquivoSaida;
 
-    if (arquivoEntrada == NULL) {
-        printf("Erro ao abrir o arquivo de entrada.\n");
-        return 1;
-    }
+char linha[TAM_ENTRADA];
+char etapa[TAM_SAIDA];
+char modificada[TAM_SAIDA];
 
-    // Cria o arquivo que recebera as restricoes transformadas
-    arquivoSaida = fopen(caminhoSaida, "w");
+int quantidadeVariaveisF = 1;
+int quantidadeVariaveisE = 1;
 
-    if (arquivoSaida == NULL) {
-        printf("Erro ao criar o arquivo de saida.\n");
-        fclose(arquivoEntrada);
-        return 1;
-    }
+const char *caminhoEntrada =
+    "C:\\Users\\Dagoberto\\Desktop\\MetodoSimplex\\problemaSimplex.txt";
 
-    // Percorre todas as linhas do arquivo original
-    while (fgets(linha, sizeof(linha), arquivoEntrada) != NULL) {
-        char *operador = strstr(linha, "<=");
+const char *caminhoSaida =
+    "C:\\Users\\Dagoberto\\Desktop\\MetodoSimplex\\problemaSimplexNaFormaPadrao.txt";
 
-        // Verifica se a linha possui o operador <=
-        if (operador != NULL) {
-            char ladoEsquerdo[400];
-            char ladoDireito[400];
+arquivoEntrada = fopen(caminhoEntrada, "r");
+if (arquivoEntrada == NULL) {
+    printf("Erro ao abrir o arquivo de entrada: %s\n", caminhoEntrada);
+    return 1;
+}
 
-            // Copia a parte anterior ao operador
-            size_t tamanhoEsquerdo = (size_t)(operador - linha);
+arquivoSaida = fopen(caminhoSaida, "w");
+if (arquivoSaida == NULL) {
+    printf("Erro ao criar o arquivo de saida: %s\n", caminhoSaida);
+    fclose(arquivoEntrada);
+    return 1;
+}
 
-            if (tamanhoEsquerdo >= sizeof(ladoEsquerdo)) {
-                printf("Restricao muito grande.\n");
-                fclose(arquivoEntrada);
-                fclose(arquivoSaida);
-                return 1;
-            }
-
-            memcpy(ladoEsquerdo, linha, tamanhoEsquerdo);
-            ladoEsquerdo[tamanhoEsquerdo] = '\0';
-
-            // Remove os espacos do final do lado esquerdo
-            while (tamanhoEsquerdo > 0 &&
-                   ladoEsquerdo[tamanhoEsquerdo - 1] == ' ') {
-                ladoEsquerdo[--tamanhoEsquerdo] = '\0';
-            }
-
-            // Copia a parte posterior ao operador <=
-            snprintf(
-                ladoDireito,
-                sizeof(ladoDireito),
-                "%s",
-                operador + 2
-            );
-
-            // Remove os espacos do inicio do lado direito
-            char *inicioDireito = ladoDireito;
-
-            while (*inicioDireito == ' ' ||
-                   *inicioDireito == '\t') {
-                inicioDireito++;
-            }
-
-            // Remove a quebra de linha para reconstruir a restricao
-            inicioDireito[strcspn(inicioDireito, "\r\n")] = '\0';
-
-            // Adiciona uma variavel de folga e transforma <= em =
-            numeroVariavelFolga++;
-
-            fprintf(
-                arquivoSaida,
-                "%s + vf%d = %s\n",
-                ladoEsquerdo,
-                numeroVariavelFolga,
-                inicioDireito
-            );
-
-        } else {
-            // Mantem as linhas que nao possuem <=
-            fputs(linha, arquivoSaida);
+while (fgets(linha, sizeof(linha), arquivoEntrada) != NULL) {
+    // Mantem as condicoes x1 >= 0, x2 >= 0, ... sem substituicao.
+    if (ehRestricaoNaoNegatividade(linha)) {
+        if (fputs(linha, arquivoSaida) == EOF) {
+            printf("Erro ao escrever no arquivo de saida.\n");
+            fclose(arquivoEntrada);
+            fclose(arquivoSaida);
+            return 1;
         }
+        continue;
     }
 
-  
+    // Primeira etapa: substitui <= por variaveis de folga F numeradas.
+    if (!substituirTodas(
+            linha, "<=", " + F%d = ", etapa, sizeof(etapa),
+            &quantidadeVariaveisF)) {
+        printf("Erro ao substituir o operador <=. Linha muito grande?\n");
+        fclose(arquivoEntrada);
+        fclose(arquivoSaida);
+        return 1;
+    }
 
-    printf("Transformacao concluida com sucesso!\n");
-    printf("Restricoes transformadas: %d\n", numeroVariavelFolga);
-    printf("Arquivo gerado:\n%s\n", caminhoSaida);
+    // Segunda etapa: substitui >= por variaveis de excesso E numeradas.
+    if (!substituirTodas(
+            etapa, ">=", " - E%d = ", modificada, sizeof(modificada),
+            &quantidadeVariaveisE)) {
+        printf("Erro ao substituir o operador >=. Linha muito grande?\n");
+        fclose(arquivoEntrada);
+        fclose(arquivoSaida);
+        return 1;
+    }
 
+    if (fputs(modificada, arquivoSaida) == EOF) {
+        printf("Erro ao escrever no arquivo de saida.\n");
+        fclose(arquivoEntrada);
+        fclose(arquivoSaida);
+        return 1;
+    }
+}
 
+if (ferror(arquivoEntrada)) {
+    printf("Erro durante a leitura do arquivo de entrada.\n");
+    fclose(arquivoEntrada);
+    fclose(arquivoSaida);
+    return 1;
+}
 
+fclose(arquivoEntrada);
+if (fclose(arquivoSaida) == EOF) {
+    printf("Erro ao finalizar o arquivo de saida.\n");
+    return 1;
+}
 
+printf("\nTransformacao para a forma padrao concluida!\n");
+printf("Variaveis de folga criadas (F): %d\n", quantidadeVariaveisF - 1);
+printf("Variaveis de excesso criadas (E): %d\n", quantidadeVariaveisE - 1);
+printf("Arquivo gerado: %s\n", caminhoSaida);
 
 printf("\n");
 printf("============================================\n");
 
-    // ============================================================
-    // FECHANDO OS ARQUIVOS
-    //
-    // IMPORTANTE:
-    // Os arquivos só são fechados aqui, depois de todas
-    // as operações de escrita.
-    // ============================================================
-
-    fclose(arquivoRestricoes);
-
-    fclose(problemaSimplexCompleto);
+    // Os arquivos problemaSimplex.txt e restricoes.txt já foram
+    // fechados antes da transformação para garantir a gravação.
 
 
     // ============================================================
