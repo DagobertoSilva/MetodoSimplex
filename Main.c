@@ -262,10 +262,10 @@ void nomeColuna(char nome[], size_t tamanho, int coluna, int n, int nf) {
 /*
     Imprime a tabela (em arquivo ou na tela) no formato:
 
-    Base   |        x1 |        x2 |        F1 | ... |         b
-    -------+-----------+-----------+-----------+-----+----------
-    z      |     -4.00 |     -5.00 |      0.00 | ... |      0.00
-    F1     |      1.00 |      1.00 |      1.00 | ... |     15.00
+    Base   |         z |        x1 |        x2 |        F1 | ... |         b
+    -------+-----------+-----------+-----------+-----------+-----+----------
+    z      |      1.00 |     -4.00 |     -5.00 |      0.00 | ... |      0.00
+    F1     |      0.00 |      1.00 |      1.00 |      1.00 | ... |     15.00
 */
 void imprimirTabela(
     FILE *saida,
@@ -281,6 +281,7 @@ void imprimirTabela(
     char nome[32];
 
     fprintf(saida, "%-6s", "Base");
+    fprintf(saida, " | %9s", "z");   // coluna do coeficiente de z
     for (j = 0; j < colunas; j++) {
         nomeColuna(nome, sizeof(nome), j, n, nf);
         fprintf(saida, " | %9s", nome);
@@ -289,7 +290,7 @@ void imprimirTabela(
     fprintf(saida, "\n");
 
     fprintf(saida, "-------");
-    for (j = 0; j <= colunas; j++) {
+    for (j = 0; j <= colunas + 1; j++) {
         fprintf(saida, "+-----------");
     }
     fprintf(saida, "\n");
@@ -312,6 +313,10 @@ void imprimirTabela(
         }
 
         fprintf(saida, "%-6s", nome);
+
+        // Coluna z: coeficiente 1 na linha da funcao objetivo e 0 nas
+        // linhas das restricoes (z nao aparece nas restricoes).
+        fprintf(saida, " | %9.2lf", (i == 0) ? 1.0 : 0.0);
 
         for (j = 0; j < colunas; j++) {
             valor = tabela[i * largura + j];
@@ -435,9 +440,9 @@ int main() {
     // ABERTURA DOS ARQUIVOS
     // ============================================================
 
-    problemaSimplexCompleto = fopen(caminhoProblema, "w");
+    problemaSimplexCompleto = fopen(caminhoProblema, "w"); // abro o arquivo problemaSimplex.txt, para escrever(w) e gravar nele as informações da função objetivo, retrições e não negatividade
 
-    if (problemaSimplexCompleto == NULL) {
+    if (problemaSimplexCompleto == NULL) { // se houver problema para abrir o arquivo problemaSimplex.txt eu entro aqui
 
         printf("\n============================================\n");
         printf("ERRO AO ABRIR problemaSimplex.txt\n");
@@ -450,9 +455,9 @@ int main() {
     }
 
 
-    arquivoRestricoes = fopen(caminhoRestricoes, "w");
+    arquivoRestricoes = fopen(caminhoRestricoes, "w"); // abro o arquivo restricoes.txt, para escrever(w) e gravar nele as informações das retrições e não negatividade
 
-    if (arquivoRestricoes == NULL) {
+    if (arquivoRestricoes == NULL) { // se houver problema para abrir o arquivo problemaSimplex.txt eu entro aqui
 
         printf("\n============================================\n");
         printf("ERRO AO ABRIR restricoes.txt\n");
@@ -470,7 +475,7 @@ int main() {
     }
 
 
-    printf("\n============================================\n");
+    printf("\n============================================\n");  //se ambos não apresentarem erros durante a abertura chegaremos aqui
     printf("ARQUIVOS ABERTOS COM SUCESSO!\n");
     printf("============================================\n");
 
@@ -501,10 +506,10 @@ int main() {
     double *coeficienteFuncaoObjetivo;
 
     coeficienteFuncaoObjetivo =
-        malloc(numeroVariaveisDecisao * sizeof(double));
+        malloc(numeroVariaveisDecisao * sizeof(double)); // criando um vetor para armazenar a quantidade de variáveis de decisão para a função objetivo
 
 
-    if (coeficienteFuncaoObjetivo == NULL) {
+    if (coeficienteFuncaoObjetivo == NULL) { // se eu não conseguir um espaço de memoria para elas eu finalizo minha operação e fecho os arquivos.
 
         printf("\nErro ao alocar memoria para a funcao objetivo.\n");
 
@@ -525,17 +530,11 @@ int main() {
     printf("============================================\n");
 
 
-    for (i = 0; i < numeroVariaveisDecisao; i++) {
+    for (i = 0; i < numeroVariaveisDecisao; i++) { // preechendo os valores dos coeficientes das variáveis xn da função objetivo
 
-        printf(
-            "Valor da variavel de decisao x%d: ",
-            i + 1
-        );
+        printf("Valor da variavel de decisao x%d: ",i + 1);
 
-        scanf(
-            "%lf",
-            &coeficienteFuncaoObjetivo[i]
-        );
+        scanf("%lf",&coeficienteFuncaoObjetivo[i]);
     }
 
 
@@ -543,28 +542,17 @@ int main() {
     // ESCREVENDO A FUNÇÃO OBJETIVO
     // ============================================================
 
-    fprintf(
-        problemaSimplexCompleto,
-        "z = "
-    );
+    fprintf(problemaSimplexCompleto,"z = "); // abrindo o arquivo do simplex completo e gravando z = , simbolizando  z = função objetivo
 
 
     for (i = 0; i < numeroVariaveisDecisao; i++) {
 
-        double coeficiente =
-            coeficienteFuncaoObjetivo[i];
+        double coeficiente = coeficienteFuncaoObjetivo[i]; // variavel auxilixar que vai armazenar os valores do vetor das variáveis da função objetivo, para que eu sem querer altere os valores do vetor
+        if (i == 0) { // estou na primeira posição
 
+            if (coeficiente < 0) { // se o coeficiente da primeira posição for menor que zero ou seja negativo, ele vai ser gravado no arquivo como 
 
-        if (i == 0) {
-
-            if (coeficiente < 0) {
-
-                fprintf(
-                    problemaSimplexCompleto,
-                    "- %.2lfx%d",
-                    -coeficiente,
-                    i + 1
-                );
+                fprintf(problemaSimplexCompleto,"- %.2lfx%d",-coeficiente,i + 1);
 
             } else {
 
